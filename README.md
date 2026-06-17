@@ -217,3 +217,13 @@ npm run pdf-organise  # Organise and rename PDF files for upload
 ## Deployment
 
 The project is deployed to Vercel. Push to `main` triggers a production deployment. Environment variables must be set in the Vercel project settings (matching the `.env.local` keys above).
+
+---
+
+## License
+
+Copyright © Pokret Ravne Gore. All rights reserved.
+
+This source code is publicly viewable but not open source. You may not copy, modify, distribute, or deploy this codebase — in whole or in part — without explicit written permission from the owner.
+
+To request permission, contact: pokretravnegore@gmail.com
