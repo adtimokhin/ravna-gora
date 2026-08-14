@@ -6,6 +6,11 @@ import { SITE_AUTH_COOKIE_NAME, isAuthorizedCookie } from "./lib/site-auth";
 
 const intlMiddleware = createMiddleware(routing);
 
+// To turn the password gate off (e.g. once the site is ready to launch),
+// flip this to `false`. Everything in app/site-password/ and lib/site-auth.ts
+// can then be deleted, along with the SITE_PASSWORD env var.
+const SITE_GATE_ENABLED = true;
+
 // The password gate page/action — always reachable, never itself gated or
 // rewritten by next-intl.
 const GATE_PATH = "/site-password";
@@ -21,15 +26,17 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const authorized = await isAuthorizedCookie(request.cookies.get(SITE_AUTH_COOKIE_NAME)?.value);
+  if (SITE_GATE_ENABLED) {
+    const authorized = await isAuthorizedCookie(request.cookies.get(SITE_AUTH_COOKIE_NAME)?.value);
 
-  if (!authorized) {
-    const gateUrl = request.nextUrl.clone();
-    const target = pathname + request.nextUrl.search;
-    gateUrl.pathname = GATE_PATH;
-    gateUrl.search = "";
-    if (target !== "/") gateUrl.searchParams.set("redirect", target);
-    return NextResponse.redirect(gateUrl);
+    if (!authorized) {
+      const gateUrl = request.nextUrl.clone();
+      const target = pathname + request.nextUrl.search;
+      gateUrl.pathname = GATE_PATH;
+      gateUrl.search = "";
+      if (target !== "/") gateUrl.searchParams.set("redirect", target);
+      return NextResponse.redirect(gateUrl);
+    }
   }
 
   if (INTL_EXEMPT.test(pathname)) {
