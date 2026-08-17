@@ -28,20 +28,25 @@ export function ProfilePane({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    console.log("[account:profile] submit", { newName: name, currentName: user.user_metadata?.full_name });
 
     if (name === (user.user_metadata?.full_name ?? "")) {
+      console.log("[account:profile] no change, skipping update call");
       setMsg({ text: t("successProfileUpdate"), ok: true });
       return;
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+    const { data, error } = await supabase.auth.updateUser({ data: { full_name: name } });
     setLoading(false);
+    console.log("[account:profile] updateUser result", { data, error });
 
     if (error) {
+      console.error("[account:profile] updateUser failed", error);
       setMsg({ text: t("errorGeneric"), ok: false });
       return;
     }
+    console.log("[account:profile] updateUser succeeded");
     setMsg({ text: t("successProfileUpdate"), ok: true });
   }
 

@@ -14,22 +14,33 @@ export function DeleteAccountPane({ t }: { t: (key: string) => string }) {
   async function handleDelete() {
     setMsg(null);
     setLoading(true);
+    console.log("[account:delete] requesting session for access token");
 
     const {
       data: { session },
+      error: sessionError,
     } = await supabase.auth.getSession();
+    console.log("[account:delete] getSession result", {
+      hasSession: !!session,
+      hasAccessToken: !!session?.access_token,
+      sessionError,
+    });
 
     const res = await fetch("/api/account/delete", {
       method: "POST",
       headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
     });
+    const body = await res.json().catch(() => null);
+    console.log("[account:delete] /api/account/delete response", { status: res.status, body });
 
     if (!res.ok) {
+      console.error("[account:delete] delete request failed", { status: res.status, body });
       setLoading(false);
-      setMsg({ text: t("errorGeneric"), ok: false });
+      setMsg({ text: body?.error ?? t("errorGeneric"), ok: false });
       return;
     }
 
+    console.log("[account:delete] account deleted, signing out");
     await supabase.auth.signOut();
     router.push("/");
   }

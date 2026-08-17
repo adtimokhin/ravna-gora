@@ -36,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdminLoading = user ? adminStatus?.userId !== user.id : false;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("[auth] getSession()", { hasSession: !!session, userId: session?.user?.id, error });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -44,7 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[auth] onAuthStateChange", { event, hasSession: !!session, userId: session?.user?.id });
       setSession(session);
       setUser(session?.user ?? null);
     });
@@ -66,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq("id", user.id)
       .single()
       .then(({ data, error }) => {
+        console.log("[auth] profiles role lookup", { userId: user.id, data, error });
         if (cancelled) return;
         setAdminStatus({ userId: user.id, isAdmin: !error && data?.role === "admin" });
       });

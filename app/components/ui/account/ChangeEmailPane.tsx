@@ -27,14 +27,18 @@ export function ChangeEmailPane({
     e.preventDefault();
     setMsg(null);
     setLoading(true);
+    console.log("[account:email] submit", { currentEmail: user.email, newEmail: email });
 
-    const { error } = await supabase.auth.updateUser({ email });
+    const { data, error } = await supabase.auth.updateUser({ email });
     setLoading(false);
+    console.log("[account:email] updateUser result", { data, error });
 
     if (error) {
+      console.error("[account:email] updateUser failed", error);
       setMsg({ text: t("errorGeneric"), ok: false });
       return;
     }
+    console.log("[account:email] updateUser succeeded — confirmation email should be sent");
     setMsg({ text: t("successEmailUpdate"), ok: true });
     setEmail("");
   }

@@ -18,16 +18,21 @@ export function ForgotPasswordPane({
   async function handleSend() {
     setMsg(null);
     setLoading(true);
+    const redirectTo = `${window.location.origin}/account`;
+    console.log("[account:forgotPassword] sending reset email", { email: user.email, redirectTo });
 
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email ?? "", {
-      redirectTo: `${window.location.origin}/account`,
+    const { data, error } = await supabase.auth.resetPasswordForEmail(user.email ?? "", {
+      redirectTo,
     });
     setLoading(false);
+    console.log("[account:forgotPassword] resetPasswordForEmail result", { data, error });
 
     if (error) {
+      console.error("[account:forgotPassword] resetPasswordForEmail failed", error);
       setMsg({ text: tAuth("errorGeneric"), ok: false });
       return;
     }
+    console.log("[account:forgotPassword] reset email sent");
     setMsg({ text: tAuth("resetEmailSent"), ok: true });
   }
 

@@ -32,12 +32,22 @@ export function ChangePasswordPane({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    // Passwords themselves are never logged, only lengths/booleans.
+    console.log("[account:password] submit", {
+      email: user.email,
+      currentPwLength: currentPw.length,
+      newPwLength: newPw.length,
+      requirementsMet: requirements.every((r) => r.met),
+      passwordsMatch: newPw === confirmPw,
+    });
 
     if (!requirements.every((r) => r.met)) {
+      console.warn("[account:password] new password does not meet requirements");
       setMsg({ text: t("errorGeneric"), ok: false });
       return;
     }
     if (newPw !== confirmPw) {
+      console.warn("[account:password] new password and confirmation do not match");
       setMsg({ text: t("errorPasswordMismatch"), ok: false });
       return;
     }
@@ -48,21 +58,26 @@ export function ChangePasswordPane({
       email: user.email ?? "",
       password: currentPw,
     });
+    console.log("[account:password] reauth (signInWithPassword) result", { error: signInError });
 
     if (signInError) {
+      console.error("[account:password] reauth with current password failed", signInError);
       setLoading(false);
       setMsg({ text: t("errorCurrentPassword"), ok: false });
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password: newPw });
+    const { data, error } = await supabase.auth.updateUser({ password: newPw });
     setLoading(false);
+    console.log("[account:password] updateUser result", { data, error });
 
     if (error) {
+      console.error("[account:password] updateUser failed", error);
       setMsg({ text: t("errorGeneric"), ok: false });
       return;
     }
 
+    console.log("[account:password] password updated successfully");
     setMsg({ text: t("successPasswordUpdate"), ok: true });
     setCurrentPw("");
     setNewPw("");

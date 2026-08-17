@@ -10,8 +10,11 @@ import { ProfilePane } from "./account/ProfilePane";
 import { ChangeEmailPane } from "./account/ChangeEmailPane";
 import { ChangePasswordPane } from "./account/ChangePasswordPane";
 import { ForgotPasswordPane } from "./account/ForgotPasswordPane";
-import { BillingPane } from "./account/BillingPane";
 import { DeleteAccountPane } from "./account/DeleteAccountPane";
+
+// Billing isn't wired to a real payment processor yet (see BillingPane) —
+// hide it from the sidebar until that's built.
+const BILLING_ENABLED: boolean = false;
 
 type Section = "profile" | "email" | "password" | "forgotPassword" | "billing" | "delete";
 
@@ -45,12 +48,14 @@ export function AccountContent() {
     { key: "email", label: t("changeEmail") },
     { key: "password", label: t("changePassword") },
     { key: "forgotPassword", label: t("resetPassword") },
-    { key: "billing", label: t("billing") },
+    ...(BILLING_ENABLED ? [{ key: "billing", label: t("billing") }] : []),
     { key: "delete", label: t("deleteAccount"), variant: "danger" },
   ];
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
+    console.log("[account:signOut] signing out", { userId: user?.id });
+    const { error } = await supabase.auth.signOut();
+    console.log("[account:signOut] signOut result", { error });
     router.push("/");
   }
 
@@ -71,7 +76,6 @@ export function AccountContent() {
         {section === "email" && <ChangeEmailPane user={user} t={t} />}
         {section === "password" && <ChangePasswordPane user={user} t={t} tAuth={tAuth} />}
         {section === "forgotPassword" && <ForgotPasswordPane user={user} tAuth={tAuth} />}
-        {section === "billing" && <BillingPane t={t} />}
         {section === "delete" && <DeleteAccountPane t={t} />}
       </div>
     </div>
