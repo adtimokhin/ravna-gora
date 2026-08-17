@@ -13,8 +13,8 @@
     "closeMenu": "Затвори мени",
     "switchLanguage": "Промени језик",
     "adminLinks": {
-      "studio": "Уређивање садржаја",
-      "issues": "Уређивање бројева новина"
+      "studio": "Студио садржаја",
+      "dashboard": "Админ панел"
     },
     "exploreLinks": {
       "aboutUs": "О нама",

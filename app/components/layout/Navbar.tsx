@@ -212,7 +212,7 @@ export function Navbar() {
                           className="block px-4 py-2.5 type-ui-medium text-black whitespace-nowrap hover:bg-blue-2 hover:text-white transition-colors"
                           onClick={() => setAdminMenuOpen(false)}
                         >
-                          {t("adminLinks.issues")}
+                          {t("adminLinks.dashboard")}
                         </Link>
                       </div>
                     )}
@@ -383,7 +383,7 @@ export function Navbar() {
                         onClick={() => setMenuOpen(false)}
                         className="type-small-medium text-gray-1 hover:underline"
                       >
-                        {t("adminLinks.issues")}
+                        {t("adminLinks.dashboard")}
                       </Link>
                     </div>
                   </div>

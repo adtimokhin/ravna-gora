@@ -13,8 +13,8 @@
     "closeMenu": "Zatvori meni",
     "switchLanguage": "Promeni jezik",
     "adminLinks": {
-      "studio": "Uređivanje sadržaja",
-      "issues": "Uređivanje brojeva novina"
+      "studio": "Studio sadržaja",
+      "dashboard": "Admin panel"
     },
     "exploreLinks": {
       "aboutUs": "O nama",

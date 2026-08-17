@@ -13,8 +13,8 @@
     "closeMenu": "Close menu",
     "switchLanguage": "Switch language",
     "adminLinks": {
-      "studio": "Edit Content",
-      "issues": "Edit Newspaper Issues"
+      "studio": "Content Studio",
+      "dashboard": "Admin Dashboard"
     },
     "exploreLinks": {
       "aboutUs": "About Us",
