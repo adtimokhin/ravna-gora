@@ -6,11 +6,16 @@
     "membership": "Membership",
     "login": "Login",
     "account": "Account",
+    "admin": "Admin",
     "explore": "Explore",
     "history": "History",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "switchLanguage": "Switch language",
+    "adminLinks": {
+      "studio": "Edit Content",
+      "issues": "Edit Newspaper Issues"
+    },
     "exploreLinks": {
       "aboutUs": "About Us",
       "events": "Events",

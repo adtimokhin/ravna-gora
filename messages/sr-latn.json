@@ -6,11 +6,16 @@
     "membership": "Članstvo",
     "login": "Prijava",
     "account": "Nalog",
+    "admin": "Administracija",
     "explore": "Istražite",
     "history": "Istorija",
     "openMenu": "Otvori meni",
     "closeMenu": "Zatvori meni",
     "switchLanguage": "Promeni jezik",
+    "adminLinks": {
+      "studio": "Uređivanje sadržaja",
+      "issues": "Uređivanje brojeva novina"
+    },
     "exploreLinks": {
       "aboutUs": "O nama",
       "events": "Događaji",
