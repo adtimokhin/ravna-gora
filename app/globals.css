@@ -245,6 +245,47 @@
   letter-spacing: 0.12em;
 }
 
+/* Serif counterparts — same sizes/line-heights, Cormorant Garamond instead
+   of Inter. Used on pages that want a more traditional, editorial voice
+   (e.g. the account page) without a raw sans utility in sight. */
+
+@utility type-body-serif {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-weight: 500;
+}
+
+@utility type-ui-serif {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--text-ui-medium);
+  line-height: var(--leading-ui-medium);
+  font-weight: 600;
+}
+
+@utility type-caption-serif {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 500;
+}
+
+@utility type-label-serif {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--text-label);
+  line-height: var(--leading-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+@utility type-micro-serif {
+  font-family: var(--font-cormorant), serif;
+  font-size: var(--text-micro);
+  line-height: var(--leading-micro);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
 /* =============================================================
    BASE
    ============================================================= */
