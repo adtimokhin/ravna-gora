@@ -37,6 +37,14 @@ export const historyPageType = defineType({
       options: { hotspot: true },
       validation: (r) => r.required(),
     }),
+    defineField({
+      name: "added_at",
+      title: "Added At",
+      type: "datetime",
+      description:
+        "Controls display order — the 5 most recent pages (by this date) show on the home page, and it also orders the /history catalog. Pages without a date set here won't appear in either listing.",
+      validation: (r) => r.required(),
+    }),
 
     defineField({
       name: "content",

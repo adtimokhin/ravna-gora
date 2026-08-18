@@ -31,8 +31,7 @@
     }
   },
   "footer": {
-    "explore": "Explore",
-    "history": "History",
+    "pages": "Pages",
     "contactInfo": "Contact Information",
     "chapter": "USA CHAPTER",
     "orgName": "The Movement of Serbian Chetniks Ravne Gore",
@@ -40,12 +39,9 @@
       "aboutUs": "About Us",
       "events": "Events",
       "newspaperCatalog": "Newspaper Catalog",
-      "home": "Home",
-      "movementInSerbia": "Movement in Serbia",
-      "testimonies": "Testimonies",
-      "movementOutsideSerbia": "Movement Outside of Serbia",
-      "symbolsAndTraditions": "Symbols & Traditions",
-      "celebrations": "Celebrations"
+      "history": "History",
+      "membership": "Membership",
+      "login": "Login"
     }
   },
   "home": {
@@ -72,21 +68,8 @@
     "membershipP1": "Membership in the Movement represents a commitment to historical memory, cultural continuity, and the preservation of Serbian heritage. By joining, members support ongoing efforts to safeguard archival materials, preserve historical records, and contribute to the responsible transmission of history to future generations. Membership also provides a meaningful way for descendants and family members to remain connected to their roots and to the historical experiences that shaped earlier generations.",
     "membershipP2": "Members receive the journal Srbija, access to developing digital archives and historical resources, and invitations to annual gatherings, commemorative events, and community activities. For families and younger generations, participation offers opportunities to engage with history, community, and shared cultural traditions. Above all, membership affirms participation in a tradition rooted in remembrance, identity, and shared heritage.",
     "joinCTA": "Join the Movement →",
-    "hist1Part": "Part 1",
-    "hist1Title": "General Mihailovic and the Ravna Gora Movement",
-    "hist1Excerpt": "In seeking to most clearly illustrate the history of the Chetnik movement, no source is perhaps as useful and as historically indicative as are the wartime records of General Mihailovic (1893–1946). Though the future will present many more opportunities to examine these records…",
-    "hist2Part": "Part 2",
-    "hist2Title": "Foreign Testimonies About Chetniks and General Mihalovic",
-    "hist2Excerpt": "General Mihailovic was a tragic hero of the Serbian people in the Second World War. Serbian people consider him a hero, but there are those who say he is a traitor. The biggest honors for one person cannot come from within his own people, but from the independent foreign observers.",
-    "hist3Part": "Part 3",
-    "hist3Title": "Serbian national movement outside of Serbia",
-    "hist3Excerpt": "Sources used in this text are from the war archives of Dinara Chetnik Division. The first call to arms in occupied Europe issued by the future leader of the Third Serbian Uprising, General Dragoljub Draža Mihailović.",
-    "hist4Part": "Part 4",
-    "hist4Title": "Symbols and traditions",
-    "hist4Excerpt": "In keeping with its commitment to the study and preservation of Serbian history and cultural heritage, the Movement honors a set of established symbols and traditions that reflect its historical identity.",
-    "hist5Part": "Part 5",
-    "hist5Title": "Celebrations and commemorations",
-    "hist5Excerpt": "Commemorations form an important part of the Movement's cultural and community life, reflecting its dedication to historical memory and Serbian tradition. Alongside the observance of the Slava Đurđevdan, members mark dates of lasting significance."
+    "viewAllHistory": "View All History →",
+    "noHistoryPages": "No history pages published yet."
   },
   "about": {
     "heroTitle": "The Movement of Serbian Chetniks Ravne Gore",
@@ -128,6 +111,12 @@
     "description": "Browse our archive of past and upcoming events.",
     "imageAlt": "Events",
     "noEvents": "No events published yet."
+  },
+  "history": {
+    "title": "History",
+    "description": "Browse our archive of historical articles.",
+    "imageAlt": "History",
+    "noPages": "No history pages published yet."
   },
   "newspaperCatalog": {
     "title": "Newspaper Archive",

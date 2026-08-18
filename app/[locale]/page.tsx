@@ -1,13 +1,11 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { Link } from "../../i18n/navigation";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
-import { SectionHeading } from "../components/ui/SectionHeading";
 import { HomeHero } from "../components/ui/HomeHero";
 import { WelcomeQuote } from "../components/ui/WelcomeQuote";
 import { LatestIssueCard } from "../components/ui/LatestIssueCard";
 import { AboutSection } from "../components/ui/AboutSection";
+import { RecentHistorySection } from "../components/ui/RecentHistorySection";
 import { ChaptersSection } from "../components/ui/ChaptersSection";
 import { MembershipSection } from "../components/ui/MembershipSection";
 import { client } from "../../sanity/lib/client";
@@ -16,16 +14,10 @@ import { urlFor, type SanityImage } from "../../sanity/lib/image";
 export const revalidate = 60;
 
 // Figma MCP asset URLs — expires 7 days after generation
-// FIXME: images and excerpts in histArticles are static placeholders — replace with CMS data when history pages are authored
 const A = {
   hero:     "/images/landing-hero-original/1512.avif", // fallback only, used when homePage.picture is unset
   magazine: "/images/preview-next-newspaper/464.avif",
   about:    "/images/about-us-section-original/1512.avif",
-  hist1:    "/images/history-page-1-original/400.avif",
-  hist2:    "/images/history-page-2-original/544.avif",
-  hist3:    "/images/history-page-3-original/500.avif",
-  hist4:    "/images/history-page-4-original/1024.avif",
-  hist5:    "/images/history-page-5-original/1024.avif",
 };
 
 type Chapter = { name: string; websiteUrl?: string };
@@ -49,6 +41,7 @@ type HomePageData = {
   membership?: MembershipData;
   chapters: Chapter[];
 };
+type RecentHistoryPage = { title: string; slug: string; picture: SanityImage };
 
 const FALLBACK_CHAPTERS: Chapter[] = [
   { name: "United States" },
@@ -56,17 +49,6 @@ const FALLBACK_CHAPTERS: Chapter[] = [
   { name: "United Kingdom" },
   { name: "Australia" },
 ];
-
-// FIXME: slug for Part 1 was not confirmed (duplicate given); verify and update once known
-const HIST_HREFS = [
-  "/history/serbian-national-movement-outside-of-serbia",
-  "/history/foreign-testimonies-about-chetniks-and-general-mihalovic",
-  "/history/serbian-national-movement-outside-of-serbia",
-  "/history/symbols-and-traditions",
-  "/history/celebrations-and-commemorations",
-];
-
-const HIST_IMGS = [A.hist1, A.hist2, A.hist3, A.hist4, A.hist5];
 
 export default async function Home({
   params,
@@ -76,19 +58,29 @@ export default async function Home({
   const { locale } = await params;
   const t = await getTranslations("home");
 
-  const homePage: HomePageData | null = await client.fetch(
-    `*[_type == "homePage" && (language == $locale || (!defined(language) && $locale == "en"))][0] {
-      pageTitle,
-      pageSubtitle,
-      picture,
-      welcomeQuote,
-      latestIssue,
-      about,
-      membership,
-      chapters
-    }`,
-    { locale }
-  );
+  const [homePage, recentHistoryPages]: [HomePageData | null, RecentHistoryPage[]] = await Promise.all([
+    client.fetch(
+      `*[_type == "homePage" && (language == $locale || (!defined(language) && $locale == "en"))][0] {
+        pageTitle,
+        pageSubtitle,
+        picture,
+        welcomeQuote,
+        latestIssue,
+        about,
+        membership,
+        chapters
+      }`,
+      { locale }
+    ),
+    client.fetch(
+      `*[_type == "historyPage" && defined(added_at) && (language == $locale || (!defined(language) && $locale == "en"))] | order(added_at desc) [0...5] {
+        title,
+        "slug": slug.current,
+        picture
+      }`,
+      { locale }
+    ),
+  ]);
 
   const pageTitle    = homePage?.pageTitle    ?? t("fallbackTitle");
   const pageSubtitle = homePage?.pageSubtitle ?? t("fallbackSubtitle");
@@ -117,12 +109,10 @@ export default async function Home({
   const membershipParagraphs = membership?.paragraphs?.length ? membership.paragraphs : [t("membershipP1"), t("membershipP2")];
   const membershipCtaText    = membership?.ctaText ?? t("joinCTA");
 
-  const histArticles = (["1", "2", "3", "4", "5"] as const).map((n, i) => ({
-    part:    t(`hist${n}Part`   as `hist${typeof n}Part`),
-    title:   t(`hist${n}Title`  as `hist${typeof n}Title`),
-    excerpt: t(`hist${n}Excerpt`as `hist${typeof n}Excerpt`),
-    img:     HIST_IMGS[i],
-    href:    HIST_HREFS[i],
+  const recentHistoryArticles = recentHistoryPages.map((page) => ({
+    slug: page.slug,
+    title: page.title,
+    pictureUrl: urlFor(page.picture).width(700).auto("format").url(),
   }));
 
   return (
@@ -161,37 +151,14 @@ export default async function Home({
               linkText={aboutLinkText}
             />
 
-            {/* ── Historical Introduction ── */}
-            <section className="flex flex-col gap-[var(--space-text-tp)]">
-              <SectionHeading title={t("historicalIntroHeading")} />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-[18px] gap-y-[var(--space-card-v)]">
-                {histArticles.map(({ part, title, img, href, excerpt }) => (
-                  <Link key={part} href={href} className="group">
-                    <article className="flex flex-col gap-[var(--space-text-p)]">
-                      <div className="relative h-[260px] md:h-[320px] xl:h-[421px] overflow-hidden">
-                        <Image
-                          alt={title}
-                          src={img}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-[var(--space-text-p)]">
-                        <div className="flex flex-col gap-1">
-                          <p className="type-large text-black">{part}</p>
-                          <h3 className="type-h3 text-black group-hover:underline">{title}</h3>
-                        </div>
-
-                        <p className="type-body text-black line-clamp-3">{excerpt}</p>
-                      </div>
-                    </article>
-                  </Link>
-                ))}
-              </div>
-            </section>
+            {/* ── Recent history ── */}
+            <RecentHistorySection
+              heading={t("historicalIntroHeading")}
+              articles={recentHistoryArticles}
+              emptyLabel={t("noHistoryPages")}
+              viewAllHref="/history"
+              viewAllLabel={t("viewAllHistory")}
+            />
 
             {/* ── Chapters ── */}
             <ChaptersSection heading={t("chaptersHeading")} chapters={chapters} visitLabel={t("visit")} />

@@ -1,68 +1,40 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "../../../i18n/navigation";
 
-// FIXME: keep in sync with Navbar.tsx HISTORY_LINKS — slug for Part 1 not yet confirmed
-const EXPLORE_HREFS = ["/about", "/events", "/newspaper-catalog", "/"];
-const HISTORY_HREFS = [
-  "/history/serbian-national-movement-in-serbia",
-  "/history/foreign-testimonies-about-chetniks-and-general-mihalovic",
-  "/history/serbian-national-movement-outside-of-serbia",
-  "/history/symbols-and-traditions",
-  "/history/celebrations-and-commemorations",
-];
+// Ordered to mirror the Navbar's primary nav flow (About Us → Events →
+// Newspaper → Membership → Login), with History inserted after About Us
+// since it's the other informational/content page.
+const PAGE_HREFS = ["/about", "/history", "/events", "/newspaper-catalog", "/membership", "/login"];
 
 export async function Footer() {
   const t = await getTranslations("footer");
 
-  const EXPLORE_LINKS = [
-    { label: t("links.aboutUs"), href: EXPLORE_HREFS[0] },
-    { label: t("links.events"), href: EXPLORE_HREFS[1] },
-    { label: t("links.newspaperCatalog"), href: EXPLORE_HREFS[2] },
-    { label: t("links.home"), href: EXPLORE_HREFS[3] },
-  ];
-
-  const HISTORY_LINKS = [
-    { label: t("links.movementInSerbia"), href: HISTORY_HREFS[0] },
-    { label: t("links.testimonies"), href: HISTORY_HREFS[1] },
-    { label: t("links.movementOutsideSerbia"), href: HISTORY_HREFS[2] },
-    { label: t("links.symbolsAndTraditions"), href: HISTORY_HREFS[3] },
-    { label: t("links.celebrations"), href: HISTORY_HREFS[4] },
+  const PAGE_LINKS = [
+    { label: t("links.aboutUs"), href: PAGE_HREFS[0] },
+    { label: t("links.history"), href: PAGE_HREFS[1] },
+    { label: t("links.events"), href: PAGE_HREFS[2] },
+    { label: t("links.newspaperCatalog"), href: PAGE_HREFS[3] },
+    { label: t("links.membership"), href: PAGE_HREFS[4] },
+    { label: t("links.login"), href: PAGE_HREFS[5] },
   ];
 
   return (
     <footer className="bg-blue-2 w-full">
       <div className="max-w-[1512px] mx-auto px-4 md:px-6 xl:px-10 py-[var(--space-8)] flex flex-col gap-[var(--space-9)]">
-        {/* Top: Explore + History + Contact */}
+        {/* Top: Pages + Contact */}
         <div className="flex flex-col xl:flex-row items-start justify-between gap-[var(--space-9)]">
-          <div className="flex flex-col md:flex-row gap-[var(--space-9)] md:gap-[181px]">
-            <div className="flex flex-col gap-[var(--space-5)]">
-              <p className="type-h4 text-white">{t("explore")}</p>
-              <div className="flex flex-col gap-[var(--space-2)]">
-                {EXPLORE_LINKS.map(({ label, href }) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    className="type-body text-white hover:underline"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-[var(--space-5)]">
-              <p className="type-h4 text-white">{t("history")}</p>
-              <div className="flex flex-col gap-[var(--space-2)]">
-                {HISTORY_LINKS.map(({ label, href }) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    className="type-body text-white whitespace-nowrap hover:underline"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
+          <div className="flex flex-col gap-[var(--space-5)]">
+            <p className="type-h4 text-white">{t("pages")}</p>
+            <div className="flex flex-col gap-[var(--space-2)]">
+              {PAGE_LINKS.map(({ label, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="type-body text-white whitespace-nowrap hover:underline"
+                >
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
 
