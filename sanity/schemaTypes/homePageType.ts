@@ -24,10 +24,32 @@ export const homePageType = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "picture",
+      title: "Hero Picture",
+      type: "image",
+      options: { hotspot: true },
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "welcomeQuote",
+      title: "Welcome Quote",
+      type: "text",
+      rows: 4,
+      validation: (r) => r.required(),
+    }),
+
+    defineField({
       name: "latestIssue",
       title: "Latest Newspaper Issue",
       type: "object",
       fields: [
+        defineField({
+          name: "picture",
+          title: "Cover Picture",
+          type: "image",
+          options: { hotspot: true },
+          validation: (r) => r.required(),
+        }),
         defineField({
           name: "date",
           title: "Date",
@@ -40,6 +62,86 @@ export const homePageType = defineType({
           title: "Issue Number",
           type: "string",
           description: 'Display string, e.g. "#764"',
+          validation: (r) => r.required(),
+        }),
+        defineField({
+          name: "description",
+          title: "Description",
+          type: "text",
+          rows: 3,
+          validation: (r) => r.required(),
+        }),
+      ],
+    }),
+
+    defineField({
+      name: "about",
+      title: "About Section",
+      type: "object",
+      fields: [
+        defineField({
+          name: "heading",
+          title: "Heading",
+          type: "string",
+          validation: (r) => r.required(),
+        }),
+        defineField({
+          name: "paragraphs",
+          title: "Paragraphs",
+          type: "array",
+          of: [defineArrayMember({ type: "text", rows: 4 })],
+          validation: (r) => r.required().min(1),
+        }),
+        defineField({
+          name: "picture",
+          title: "Picture",
+          type: "image",
+          options: { hotspot: true },
+          validation: (r) => r.required(),
+        }),
+        defineField({
+          name: "photoCaption",
+          title: "Photo Caption",
+          type: "string",
+        }),
+        defineField({
+          name: "photoYear",
+          title: "Photo Year",
+          type: "string",
+        }),
+        defineField({
+          name: "linkText",
+          title: "Link Text",
+          description: 'e.g. "Load More →" — links to /about',
+          type: "string",
+          validation: (r) => r.required(),
+        }),
+      ],
+    }),
+
+    defineField({
+      name: "membership",
+      title: "Membership Section",
+      type: "object",
+      fields: [
+        defineField({
+          name: "heading",
+          title: "Heading",
+          type: "string",
+          validation: (r) => r.required(),
+        }),
+        defineField({
+          name: "paragraphs",
+          title: "Paragraphs",
+          type: "array",
+          of: [defineArrayMember({ type: "text", rows: 4 })],
+          validation: (r) => r.required().min(1),
+        }),
+        defineField({
+          name: "ctaText",
+          title: "CTA Button Text",
+          description: 'e.g. "Join the Movement →" — links to /membership',
+          type: "string",
           validation: (r) => r.required(),
         }),
       ],
