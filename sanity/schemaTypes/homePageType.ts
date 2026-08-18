@@ -6,6 +6,12 @@ export const homePageType = defineType({
   type: "document",
   fields: [
     defineField({
+      name: "language",
+      type: "string",
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
       name: "pageTitle",
       title: "Page Title",
       type: "string",
