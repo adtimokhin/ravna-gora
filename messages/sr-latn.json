@@ -6,11 +6,16 @@
     "membership": "Članstvo",
     "login": "Prijava",
     "account": "Nalog",
+    "admin": "Administracija",
     "explore": "Istražite",
     "history": "Istorija",
     "openMenu": "Otvori meni",
     "closeMenu": "Zatvori meni",
     "switchLanguage": "Promeni jezik",
+    "adminLinks": {
+      "studio": "Studio sadržaja",
+      "dashboard": "Admin panel"
+    },
     "exploreLinks": {
       "aboutUs": "O nama",
       "events": "Događaji",
@@ -26,8 +31,7 @@
     }
   },
   "footer": {
-    "explore": "Istražite",
-    "history": "Istorija",
+    "pages": "Stranice",
     "contactInfo": "Kontakt informacije",
     "chapter": "USA CHAPTER",
     "orgName": "Pokret srpskih četnika Ravne Gore",
@@ -35,12 +39,9 @@
       "aboutUs": "O nama",
       "events": "Događaji",
       "newspaperCatalog": "Katalog novina",
-      "home": "Početna",
-      "movementInSerbia": "Pokret u Srbiji",
-      "testimonies": "Svedočanstva",
-      "movementOutsideSerbia": "Pokret van Srbije",
-      "symbolsAndTraditions": "Simboli i tradicije",
-      "celebrations": "Proslave"
+      "history": "Istorija",
+      "membership": "Članstvo",
+      "login": "Prijava"
     }
   },
   "home": {
@@ -67,21 +68,8 @@
     "membershipP1": "Članstvo u Pokretu predstavlja posvećenost istorijskom sećanju, kulturnom kontinuitetu i očuvanju srpske baštine. Pristupanjem, članovi podržavaju tekuće napore na zaštiti arhivske građe, očuvanju istorijskih zapisa i doprinose odgovornom prenosu istorije budućim generacijama. Članstvo takođe pruža smislen način za potomke i članove porodice da ostanu povezani sa svojim korenima i istorijskim iskustvima koja su oblikovala ranije generacije.",
     "membershipP2": "Članovi dobijaju časopis Srbija, pristup digitalnim arhivama i istorijskim resursima u razvoju, kao i pozive na godišnje skupove, komemorativne događaje i aktivnosti zajednice. Za porodice i mlađe generacije, učešće nudi prilike za angažovanje sa istorijom, zajednicom i zajedničkim kulturnim tradicijama. Iznad svega, članstvo potvrđuje učešće u tradiciji ukorenjenoj u sećanju, identitetu i zajedničkoj baštini.",
     "joinCTA": "Pridružite se Pokretu →",
-    "hist1Part": "Prvi deo",
-    "hist1Title": "General Mihailović i Ravnogorski pokret",
-    "hist1Excerpt": "U nastojanju da se najjasnije prikaže istorija četničkog pokreta, nijedan izvor nije možda tako koristan i istorijski indikativan kao ratni zapisi generala Mihailovića (1893–1946). Iako će budućnost pružiti mnogo više prilika za ispitivanje ovih zapisa…",
-    "hist2Part": "Drugi deo",
-    "hist2Title": "Svedočanstva stranaca o četnicima i generalu Mihailoviću",
-    "hist2Excerpt": "General Mihailović je bio tragični heroj srpskog naroda u Drugom svetskom ratu. Srpski narod ga smatra herojem, ali ima i onih koji kažu da je izdajnik. Najveća priznanja za jednu osobu ne mogu doći iz njenog sopstvenog naroda, već od nezavisnih stranih posmatrača.",
-    "hist3Part": "Treći deo",
-    "hist3Title": "Srpski nacionalni pokret van Srbije",
-    "hist3Excerpt": "Izvori korišćeni u ovom tekstu su iz ratnih arhiva Dinarske četničke divizije. Prvi poziv na oružje u okupiranoj Evropi uputio je budući vođa Trećeg srpskog ustanka, general Dragoljub Draža Mihailović.",
-    "hist4Part": "Četvrti deo",
-    "hist4Title": "Simboli i tradicije",
-    "hist4Excerpt": "U skladu sa svojom posvećenošću proučavanju i očuvanju srpske istorije i kulturne baštine, Pokret poštuje niz uspostavljenih simbola i tradicija koje odražavaju njegov istorijski identitet.",
-    "hist5Part": "Peti deo",
-    "hist5Title": "Proslave i komemoracije",
-    "hist5Excerpt": "Komemoracije čine važan deo kulturnog i života zajednice Pokreta, odražavajući njegovu posvećenost istorijskom sećanju i srpskoj tradiciji. Pored obeležavanja slave Đurđevdan, članovi obeležavaju datume od trajnog značaja."
+    "viewAllHistory": "Pogledajte celu istoriju →",
+    "noHistoryPages": "Još uvek nema objavljenih istorijskih stranica."
   },
   "about": {
     "heroTitle": "Pokret srpskih četnika Ravne Gore",
@@ -123,6 +111,12 @@
     "description": "Pregledajte našu arhivu prošlih i predstojećih događaja.",
     "imageAlt": "Događaji",
     "noEvents": "Još uvek nema objavljenih događaja."
+  },
+  "history": {
+    "title": "Istorija",
+    "description": "Pregledajte naš arhiv istorijskih članaka.",
+    "imageAlt": "Istorija",
+    "noPages": "Još uvek nema objavljenih istorijskih stranica."
   },
   "newspaperCatalog": {
     "title": "Arhiva novina",
@@ -187,7 +181,12 @@
     "email": "Imejl",
     "editProfile": "Uredi profil",
     "saveChanges": "Sačuvaj promene",
-    "subscription": "Pretplata",
+    "changeEmail": "Promenite imejl",
+    "currentEmailIs": "Vaša trenutna imejl adresa je {email}.",
+    "newEmail": "Nova imejl adresa",
+    "sendVerification": "Pošalji potvrdu",
+    "resetPassword": "Resetujte lozinku",
+    "billing": "Članstvo i naplata",
     "currentPlan": "Trenutni plan",
     "renewsOn": "Obnavlja se",
     "managePlan": "Upravljaj planom",
@@ -211,7 +210,7 @@
     "successProfileUpdate": "Profil sačuvan.",
     "successPasswordUpdate": "Lozinka ažurirana.",
     "successEmailUpdate": "Potvrda poslata na vašu novu imejl adresu.",
-    "deleteConfirmPlaceholder": "Napišite IZBRISI za potvrdu",
+    "deleteConfirmPlaceholder": "Upišite DELETE da potvrdite",
     "deleteConfirmButton": "Trajno izbriši nalog",
     "errorPasswordMismatch": "Lozinke se ne podudaraju.",
     "errorCurrentPassword": "Trenutna lozinka je netačna.",

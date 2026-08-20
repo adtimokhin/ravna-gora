@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import NextLink from "next/link";
 import { Link, useRouter, usePathname } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
 
@@ -19,6 +20,25 @@ const LOCALE_NEXT: Record<Locale, Locale> = {
   "sr-cyrl": "sr-latn",
   "sr-latn": "en",
 };
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
 
 function GlobeIcon() {
   return (
@@ -46,7 +66,9 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const adminMenuRef = useRef<HTMLDivElement>(null);
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -54,6 +76,29 @@ export function Navbar() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!adminMenuOpen) return;
+
+    function handlePointerDown(e: MouseEvent) {
+      if (
+        adminMenuRef.current &&
+        !adminMenuRef.current.contains(e.target as Node)
+      ) {
+        setAdminMenuOpen(false);
+      }
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setAdminMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [adminMenuOpen]);
 
   function cycleLang() {
     const next = LOCALE_NEXT[locale];
@@ -135,6 +180,45 @@ export function Navbar() {
                   </Link>
                 </div>
               ))}
+              {isAdmin && (
+                <div className="flex items-center">
+                  <div className="w-px h-[18px] bg-black mx-[var(--space-3)]" />
+                  <div className="relative" ref={adminMenuRef}>
+                    <button
+                      onClick={() => setAdminMenuOpen((v) => !v)}
+                      className="flex items-center gap-1 type-ui-medium font-bold text-black whitespace-nowrap hover:underline"
+                      aria-haspopup="menu"
+                      aria-expanded={adminMenuOpen}
+                    >
+                      {t("admin")}
+                      <ChevronIcon open={adminMenuOpen} />
+                    </button>
+                    {adminMenuOpen && (
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-full mt-3 min-w-55 bg-offwhite-1 border border-blue-2 shadow-lg py-2"
+                      >
+                        <NextLink
+                          href="/studio"
+                          role="menuitem"
+                          className="block px-4 py-2.5 type-ui-medium text-black whitespace-nowrap hover:bg-blue-2 hover:text-white transition-colors"
+                          onClick={() => setAdminMenuOpen(false)}
+                        >
+                          {t("adminLinks.studio")}
+                        </NextLink>
+                        <Link
+                          href="/admin"
+                          role="menuitem"
+                          className="block px-4 py-2.5 type-ui-medium text-black whitespace-nowrap hover:bg-blue-2 hover:text-white transition-colors"
+                          onClick={() => setAdminMenuOpen(false)}
+                        >
+                          {t("adminLinks.dashboard")}
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="w-px h-[18px] bg-black mx-[var(--space-3)]" />
               <button
                 onClick={cycleLang}
@@ -278,6 +362,33 @@ export function Navbar() {
                   ))}
                 </div>
               </div>
+
+              {isAdmin && (
+                <>
+                  <div className="h-px bg-black/15 w-full" />
+
+                  {/* Admin */}
+                  <div className="flex flex-col gap-[var(--space-5)]">
+                    <p className="type-h4 text-gray-1">{t("admin")}</p>
+                    <div className="flex flex-col gap-[var(--space-2)]">
+                      <NextLink
+                        href="/studio"
+                        onClick={() => setMenuOpen(false)}
+                        className="type-small-medium text-gray-1 hover:underline"
+                      >
+                        {t("adminLinks.studio")}
+                      </NextLink>
+                      <Link
+                        href="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="type-small-medium text-gray-1 hover:underline"
+                      >
+                        {t("adminLinks.dashboard")}
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="h-px bg-black/15 w-full" />
 

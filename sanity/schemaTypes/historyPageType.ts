@@ -7,6 +7,12 @@ export const historyPageType = defineType({
   type: "document",
   fields: [
     defineField({
+      name: "language",
+      type: "string",
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
       name: "title",
       title: "Title",
       type: "string",
@@ -29,6 +35,14 @@ export const historyPageType = defineType({
       title: "Picture",
       type: "image",
       options: { hotspot: true },
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "added_at",
+      title: "Added At",
+      type: "datetime",
+      description:
+        "Controls display order — the 5 most recent pages (by this date) show on the home page, and it also orders the /history catalog. Pages without a date set here won't appear in either listing.",
       validation: (r) => r.required(),
     }),
 

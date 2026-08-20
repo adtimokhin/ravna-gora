@@ -1,4 +1,5 @@
 import { Link } from "../../../i18n/navigation";
+import { toTitleCase } from "../../../lib/titleCase";
 
 export function CatalogCard({
   title,
@@ -7,7 +8,7 @@ export function CatalogCard({
   href,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   pictureUrl: string;
   href?: string;
 }) {
@@ -22,8 +23,8 @@ export function CatalogCard({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <p className="type-large text-black">{subtitle}</p>
-        <p className="type-h3 text-black group-hover:underline">{title}</p>
+        {subtitle && <p className="type-large text-black">{subtitle}</p>}
+        <p className="type-h3 text-black group-hover:underline">{toTitleCase(title)}</p>
       </div>
     </article>
   );

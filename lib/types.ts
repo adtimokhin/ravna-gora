@@ -10,3 +10,13 @@ export type Issue = {
   created_at: string;
   updated_at: string;
 };
+
+export type AdminUser = {
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  role: string;
+  banned: boolean;
+  createdAt: string;
+  lastSignInAt: string | null;
+};
