@@ -3,7 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { getStripe } from "../../../../lib/stripe";
 import { getSupabaseAdmin } from "../../../../lib/supabase-admin";
-import { getPriceId, type MembershipEdition, type MembershipPlan } from "../../../../lib/membershipPlans";
+import {
+  getPriceId,
+  MEMBERSHIP_ACTIVE_STATUSES,
+  type MembershipEdition,
+  type MembershipPlan,
+} from "../../../../lib/membershipPlans";
 
 type CheckoutBody = {
   plan?: MembershipPlan;
@@ -65,10 +70,14 @@ export async function POST(request: Request) {
 
   // Find or create the Stripe Customer for this user, and check whether they
   // already have a running subscription (a "switch" instead of a fresh signup).
+  // A user can have more than one row here over time (a canceled membership
+  // followed by a new signup, etc.), so this takes their most recent one.
   const { data: existing, error: lookupError } = await admin
     .from("memberships")
-    .select("stripe_customer_id, stripe_subscription_id, status, plan, edition")
+    .select("membership_id, stripe_customer_id, stripe_subscription_id, status, plan, edition")
     .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (lookupError) {
@@ -176,9 +185,8 @@ export async function POST(request: Request) {
 
   // A member with a running subscription picking a plan updates that
   // subscription in place (a "switch") instead of starting a second one.
-  const ACTIVE_STATUSES = ["active", "past_due", "trialing"];
   const hasActiveSubscription =
-    existing?.stripe_subscription_id && ACTIVE_STATUSES.includes(existing.status ?? "");
+    existing?.stripe_subscription_id && MEMBERSHIP_ACTIVE_STATUSES.includes(existing.status ?? "");
 
   if (hasActiveSubscription) {
     const samePlan = existing.plan === plan && (existing.edition ?? null) === (edition ?? null);
@@ -216,7 +224,7 @@ export async function POST(request: Request) {
         status: updated.status,
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user.id);
+      .eq("membership_id", existing!.membership_id);
 
     if (switchUpsertError) {
       console.error("[api/membership/checkout] memberships update failed after switch", switchUpsertError);
@@ -245,7 +253,11 @@ export async function POST(request: Request) {
     { idempotencyKey: `subscription:${sessionKey}` }
   );
 
-  const { error: upsertError } = await admin.from("memberships").upsert({
+  // Always a new row — a member with an active subscription already returned
+  // via the switch branch above, so reaching here means this is a genuinely
+  // new membership lifecycle for this user (first signup, or resubscribing
+  // after a previous one lapsed/was canceled).
+  const { error: insertError } = await admin.from("memberships").insert({
     user_id: user.id,
     stripe_customer_id: customerId,
     stripe_subscription_id: subscription.id,
@@ -254,10 +266,10 @@ export async function POST(request: Request) {
     status: subscription.status,
   });
 
-  if (upsertError) {
-    console.error("[api/membership/checkout] memberships upsert failed", upsertError);
+  if (insertError) {
+    console.error("[api/membership/checkout] memberships insert failed", insertError);
     return NextResponse.json(
-      { error: `Database error: ${upsertError.message}` },
+      { error: `Database error: ${insertError.message}` },
       { status: 500 }
     );
   }

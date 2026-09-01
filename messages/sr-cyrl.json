@@ -263,7 +263,12 @@
     "currentPlanButtonLabel": "Ово је ваш тренутни план",
     "switchToThisPlan": "Пређите на овај план →",
     "switchSuccessTitle": "План промењен",
-    "switchSuccessDesc": "Ваше чланство је ажурирано. Евентуална разлика у наплати појавиће се на следећем рачуну."
+    "switchSuccessDesc": "Ваше чланство је ажурирано. Евентуална разлика у наплати појавиће се на следећем рачуну.",
+    "billingAddressHeading": "Адреса за наплату",
+    "mailingAddressHeading": "Поштанска адреса",
+    "mailingAddressDesc": "Где да пошаљемо ваш штампани примерак Србије?",
+    "billingAddressRequired": "Молимо попуните адресу за наплату.",
+    "mailingAddressRequired": "Молимо попуните поштанску адресу."
   },
   "newspaper": {
     "backToCatalog": "← Каталог",

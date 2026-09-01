@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 import {
   Elements,
   PaymentElement,
+  AddressElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import type { Appearance } from "@stripe/stripe-js";
+import type { Appearance, StripeAddressElementChangeEvent } from "@stripe/stripe-js";
 import { useAuth } from "../providers/AuthProvider";
 import { Link, useRouter } from "../../../i18n/navigation";
 import { getStripeClient } from "../../../lib/stripe-client";
@@ -21,6 +22,10 @@ const PLAN_PRICE_KEY: Record<Plan, "supportingPrice" | "fullPrice"> = {
   supporting: "supportingPrice",
   full: "fullPrice",
 };
+
+// Restricts the shipping AddressElement's country selector to the site's
+// actual chapter countries, rather than Stripe's full world list.
+const MAILING_ALLOWED_COUNTRIES = ["US", "CA", "AU", "GB"];
 
 const APPEARANCE: Appearance = {
   theme: "stripe",
@@ -55,13 +60,23 @@ const APPEARANCE: Appearance = {
 
 function PaymentSubmitForm({
   isDonationOnly,
+  requireMailingAddress,
+  accessToken,
 }: {
   isDonationOnly: boolean;
+  requireMailingAddress: boolean;
+  accessToken: string;
 }) {
   const t = useTranslations("membership");
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  // Tracked via each AddressElement's onChange rather than read imperatively
+  // at submit time — with two Address Elements mounted (billing + shipping),
+  // elements.getElement(AddressElement) can't tell them apart, since Stripe
+  // keys lookups by element type, not by mode.
+  const [billing, setBilling] = useState<StripeAddressElementChangeEvent | null>(null);
+  const [mailing, setMailing] = useState<StripeAddressElementChangeEvent | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,9 +84,54 @@ function PaymentSubmitForm({
     e.preventDefault();
     if (!stripe || !elements) return;
 
-    setSubmitting(true);
     setError(null);
 
+    if (requireMailingAddress && !mailing?.complete) {
+      setError(t("mailingAddressRequired"));
+      return;
+    }
+
+    setSubmitting(true);
+
+    // Billing address collection is scoped to membership checkouts — see
+    // app/api/membership/billing-info/route.ts for why (it resolves the
+    // Stripe customer via the caller's `memberships` row, which donation-only
+    // checkouts never create).
+    if (!isDonationOnly) {
+      if (!billing?.complete) {
+        setError(t("billingAddressRequired"));
+        setSubmitting(false);
+        return;
+      }
+
+      const res = await fetch("/api/membership/billing-info", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          name: billing.value.name,
+          address: billing.value.address,
+          ...(requireMailingAddress && mailing
+            ? {
+                mailingName: mailing.value.name,
+                mailingAddress: mailing.value.address,
+              }
+            : {}),
+        }),
+      });
+      const body = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(body?.error ?? t("checkoutError"));
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    // Stripe automatically uses the billing details collected by the mounted
+    // AddressElement for the payment method — no need to pass them again here.
     const { error: confirmError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -90,18 +150,41 @@ function PaymentSubmitForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <PaymentElement />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      {!isDonationOnly && (
+        <div className="flex flex-col gap-4">
+          <h2 className="type-h3 text-black">{t("billingAddressHeading")}</h2>
+          <AddressElement options={{ mode: "billing" }} onChange={setBilling} />
+        </div>
+      )}
 
-      {error && <Message text={error} ok={false} />}
+      {requireMailingAddress && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h2 className="type-h3 text-black">{t("mailingAddressHeading")}</h2>
+            <p className="type-body text-gray-2">{t("mailingAddressDesc")}</p>
+          </div>
+          <AddressElement
+            options={{ mode: "shipping", allowedCountries: MAILING_ALLOWED_COUNTRIES }}
+            onChange={setMailing}
+          />
+        </div>
+      )}
 
-      <button
-        type="submit"
-        disabled={!stripe || submitting}
-        className="cursor-pointer bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-60"
-      >
-        {submitting ? t("processing") : t("payNow")}
-      </button>
+      <div className="flex flex-col gap-6">
+        <h2 className="type-h3 text-black">{t("paymentDetails")}</h2>
+        <PaymentElement />
+
+        {error && <Message text={error} ok={false} />}
+
+        <button
+          type="submit"
+          disabled={!stripe || submitting}
+          className="cursor-pointer bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-60"
+        >
+          {submitting ? t("processing") : t("payNow")}
+        </button>
+      </div>
     </form>
   );
 }
@@ -129,6 +212,7 @@ export function CheckoutForm({
   const hasRequestedRef = useRef(false);
 
   const isDonationOnly = !plan;
+  const requireMailingAddress = plan === "supporting" && (edition === "print" || edition === "both");
 
   useEffect(() => {
     if (authLoading || !user || !session) return;
@@ -227,8 +311,13 @@ export function CheckoutForm({
         <p className="type-body text-gray-2">{t("processing")}</p>
       )}
 
-      {user && clientSecret && !switched && (
-        <StripeElementsWrapper clientSecret={clientSecret} isDonationOnly={isDonationOnly} />
+      {user && clientSecret && !switched && session && (
+        <StripeElementsWrapper
+          clientSecret={clientSecret}
+          isDonationOnly={isDonationOnly}
+          requireMailingAddress={requireMailingAddress}
+          accessToken={session.access_token}
+        />
       )}
     </div>
   );
@@ -237,15 +326,23 @@ export function CheckoutForm({
 function StripeElementsWrapper({
   clientSecret,
   isDonationOnly,
+  requireMailingAddress,
+  accessToken,
 }: {
   clientSecret: string;
   isDonationOnly: boolean;
+  requireMailingAddress: boolean;
+  accessToken: string;
 }) {
   const [stripePromise] = useState(() => getStripeClient());
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret, appearance: APPEARANCE }}>
-      <PaymentSubmitForm isDonationOnly={isDonationOnly} />
+      <PaymentSubmitForm
+        isDonationOnly={isDonationOnly}
+        requireMailingAddress={requireMailingAddress}
+        accessToken={accessToken}
+      />
     </Elements>
   );
 }

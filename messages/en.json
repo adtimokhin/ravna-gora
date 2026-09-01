@@ -263,7 +263,12 @@
     "currentPlanButtonLabel": "This Is Your Current Plan",
     "switchToThisPlan": "Switch to This Plan →",
     "switchSuccessTitle": "Plan Switched",
-    "switchSuccessDesc": "Your membership has been updated. Any billing adjustment will appear on your next invoice."
+    "switchSuccessDesc": "Your membership has been updated. Any billing adjustment will appear on your next invoice.",
+    "billingAddressHeading": "Billing Address",
+    "mailingAddressHeading": "Mailing Address",
+    "mailingAddressDesc": "Where should we mail your printed copy of Srbija?",
+    "billingAddressRequired": "Please complete your billing address.",
+    "mailingAddressRequired": "Please complete the mailing address."
   },
   "newspaper": {
     "backToCatalog": "← Catalog",

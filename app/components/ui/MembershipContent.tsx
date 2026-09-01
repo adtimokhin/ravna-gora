@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
 import { supabase } from "../../../lib/supabase";
+import { MEMBERSHIP_ACTIVE_STATUSES } from "../../../lib/membershipPlans";
 import { Message } from "./account/shared";
 
 type Plan = "supporting" | "full";
@@ -17,11 +18,6 @@ type MembershipRow = {
   cancel_at_period_end: boolean;
   current_period_end: string | null;
 };
-
-// A subscription in any of these states is a real, running membership —
-// worth showing status for and offering to cancel/switch. "incomplete" (an
-// abandoned first payment), "canceled", and the rest are not.
-const ACTIVE_STATUSES = ["active", "past_due", "trialing"];
 
 function RadioDot({ active }: { active: boolean }) {
   return (
@@ -63,10 +59,14 @@ export function MembershipContent() {
 
     let cancelled = false;
 
+    // A user can have more than one row here over time — the one worth
+    // reflecting in the UI is their most recent one.
     supabase
       .from("memberships")
       .select("plan, edition, status, cancel_at_period_end, current_period_end")
       .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle()
       .then(({ data, error }) => {
         if (cancelled || error || !data) return;
@@ -78,7 +78,7 @@ export function MembershipContent() {
     };
   }, [user]);
 
-  const hasActiveMembership = !!membership && ACTIVE_STATUSES.includes(membership.status);
+  const hasActiveMembership = !!membership && MEMBERSHIP_ACTIVE_STATUSES.includes(membership.status);
 
   const selectedPlan: Plan = plan ?? (hasActiveMembership ? membership!.plan : "full");
   const selectedEdition: Edition =
