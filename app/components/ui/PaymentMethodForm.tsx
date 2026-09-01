@@ -6,7 +6,7 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { useAuth } from "../providers/AuthProvider";
 import { Link, useRouter } from "../../../i18n/navigation";
 import { getStripeClient } from "../../../lib/stripe-client";
-import { STRIPE_APPEARANCE } from "../../../lib/stripeAppearance";
+import { STRIPE_APPEARANCE, STRIPE_ELEMENTS_FONTS } from "../../../lib/stripeAppearance";
 import { Message } from "./account/shared";
 
 function UpdateForm({ accessToken }: { accessToken: string }) {
@@ -136,7 +136,10 @@ export function PaymentMethodForm() {
       )}
 
       {user && clientSecret && session && (
-        <Elements stripe={stripePromise} options={{ clientSecret, appearance: STRIPE_APPEARANCE }}>
+        <Elements
+          stripe={stripePromise}
+          options={{ clientSecret, appearance: STRIPE_APPEARANCE, fonts: STRIPE_ELEMENTS_FONTS }}
+        >
           <UpdateForm accessToken={session.access_token} />
         </Elements>
       )}

@@ -1,5 +1,3 @@
-import { Navbar } from "../../../components/layout/Navbar";
-import { Footer } from "../../../components/layout/Footer";
 import { CheckoutForm } from "../../../components/ui/CheckoutForm";
 
 type Plan = "supporting" | "full";
@@ -22,16 +20,10 @@ export default async function MembershipCheckoutPage({
   const donationCents = Math.max(0, Number.parseInt(params.donation ?? "0", 10) || 0);
 
   return (
-    <div className="min-h-screen bg-offwhite-1 flex flex-col">
-      <Navbar />
-
-      <main className="flex-1">
-        <div className="max-w-[1512px] mx-auto px-4 md:px-6 xl:px-10 pt-(--space-8) pb-(--space-10)">
-          <CheckoutForm plan={plan} edition={edition} donationCents={donationCents} />
-        </div>
-      </main>
-
-      <Footer />
+    <div className="min-h-screen bg-offwhite-1">
+      <div className="max-w-[1512px] mx-auto px-4 md:px-6 xl:px-10 pt-(--space-8) pb-(--space-10)">
+        <CheckoutForm plan={plan} edition={edition} donationCents={donationCents} />
+      </div>
     </div>
   );
 }

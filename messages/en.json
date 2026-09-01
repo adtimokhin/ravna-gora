@@ -236,6 +236,7 @@
     "editionDigital": "Digital",
     "editionPrint": "Print",
     "editionBoth": "Both",
+    "orderSummaryHeading": "Order Summary",
     "paymentDetails": "Payment Details",
     "donationTitle": "Make a Donation",
     "donationCustom": "Custom amount",

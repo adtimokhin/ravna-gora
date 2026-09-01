@@ -6,7 +6,7 @@ import { Elements, AddressElement, useElements } from "@stripe/react-stripe-js";
 import type { StripeAddressElementChangeEvent, StripeElementsOptions } from "@stripe/stripe-js";
 import { supabase } from "../../../../lib/supabase";
 import { getStripeClient } from "../../../../lib/stripe-client";
-import { STRIPE_APPEARANCE } from "../../../../lib/stripeAppearance";
+import { STRIPE_APPEARANCE, STRIPE_ELEMENTS_FONTS } from "../../../../lib/stripeAppearance";
 import { Message, PrimaryButton } from "./shared";
 
 // Restricts the country selector to the site's actual chapter countries,
@@ -17,7 +17,10 @@ const MAILING_ALLOWED_COUNTRIES = ["US", "CA", "AU", "GB"];
 // any payment/setup intent — this AddressElement just collects text), but
 // the SDK's TS union type requires a `clientSecret` or `mode` discriminant
 // that doesn't apply here.
-const ELEMENTS_OPTIONS = { appearance: STRIPE_APPEARANCE } as StripeElementsOptions;
+const ELEMENTS_OPTIONS = {
+  appearance: STRIPE_APPEARANCE,
+  fonts: STRIPE_ELEMENTS_FONTS,
+} as StripeElementsOptions;
 
 type MailingAddressRow = {
   recipient_name: string;
