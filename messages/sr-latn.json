@@ -250,7 +250,20 @@
     "successDesc": "Hvala što ste se pridružili Pokretu. Potvrda će uskoro stići na vaš imejl.",
     "successCta": "Idi na moj nalog →",
     "donationSuccessTitle": "Hvala vam!",
-    "donationSuccessDesc": "Vaš prilog pomaže u očuvanju istorije i nasleđa Pokreta."
+    "donationSuccessDesc": "Vaš prilog pomaže u očuvanju istorije i nasleđa Pokreta.",
+    "currentMembershipLabel": "Vaše trenutno članstvo",
+    "currentPlanBadge": "Trenutni plan",
+    "renewsOnLabel": "Obnavlja se {date}",
+    "cancelsOnLabel": "Ističe {date} — neće se obnoviti",
+    "cancelMembershipCta": "Otkaži članstvo",
+    "reactivateCta": "Ponovo aktiviraj članstvo",
+    "cancelConfirm": "Otkazati članstvo? Zadržaćete pristup do kraja tekućeg perioda naplate.",
+    "cancelSuccess": "Vaše članstvo će se završiti na kraju tekućeg perioda naplate.",
+    "reactivateSuccess": "Vaše članstvo će se nastaviti obnavljati kao i obično.",
+    "currentPlanButtonLabel": "Ovo je vaš trenutni plan",
+    "switchToThisPlan": "Pređite na ovaj plan →",
+    "switchSuccessTitle": "Plan promenjen",
+    "switchSuccessDesc": "Vaše članstvo je ažurirano. Eventualna razlika u naplati pojaviće se na sledećem računu."
   },
   "newspaper": {
     "backToCatalog": "← Katalog",

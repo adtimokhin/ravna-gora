@@ -63,10 +63,11 @@ export async function POST(request: Request) {
   // rather than breaking the request.
   const sessionKey = idempotencyKey || crypto.randomUUID();
 
-  // Find or create the Stripe Customer for this user.
+  // Find or create the Stripe Customer for this user, and check whether they
+  // already have a running subscription (a "switch" instead of a fresh signup).
   const { data: existing, error: lookupError } = await admin
     .from("memberships")
-    .select("stripe_customer_id")
+    .select("stripe_customer_id, stripe_subscription_id, status, plan, edition")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -171,6 +172,61 @@ export async function POST(request: Request) {
       },
       { idempotencyKey: `invoice-item:${sessionKey}` }
     );
+  }
+
+  // A member with a running subscription picking a plan updates that
+  // subscription in place (a "switch") instead of starting a second one.
+  const ACTIVE_STATUSES = ["active", "past_due", "trialing"];
+  const hasActiveSubscription =
+    existing?.stripe_subscription_id && ACTIVE_STATUSES.includes(existing.status ?? "");
+
+  if (hasActiveSubscription) {
+    const samePlan = existing.plan === plan && (existing.edition ?? null) === (edition ?? null);
+    if (samePlan) {
+      return NextResponse.json({ error: "You're already subscribed to this plan." }, { status: 400 });
+    }
+
+    const current = await stripe.subscriptions.retrieve(existing.stripe_subscription_id!);
+    const itemId = current.items.data[0]?.id;
+    if (!itemId) {
+      console.error("[api/membership/checkout] existing subscription has no item to switch", {
+        subscriptionId: existing.stripe_subscription_id,
+      });
+      return NextResponse.json({ error: "Could not switch plans. Please try again." }, { status: 500 });
+    }
+
+    // Deferred proration: the credit/charge for switching mid-cycle lands on
+    // the next regular invoice rather than being collected right now, so this
+    // needs no separate payment confirmation step.
+    const updated = await stripe.subscriptions.update(
+      existing.stripe_subscription_id!,
+      {
+        items: [{ id: itemId, price: priceId }],
+        proration_behavior: "create_prorations",
+        metadata: { supabase_user_id: user.id, plan, ...(edition ? { edition } : {}) },
+      },
+      { idempotencyKey: `switch:${sessionKey}` }
+    );
+
+    const { error: switchUpsertError } = await admin
+      .from("memberships")
+      .update({
+        plan,
+        edition: edition ?? null,
+        status: updated.status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id);
+
+    if (switchUpsertError) {
+      console.error("[api/membership/checkout] memberships update failed after switch", switchUpsertError);
+      return NextResponse.json(
+        { error: `Database error: ${switchUpsertError.message}` },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ switched: true });
   }
 
   const subscription = await stripe.subscriptions.create(

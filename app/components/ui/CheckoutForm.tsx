@@ -118,6 +118,7 @@ export function CheckoutForm({
   const t = useTranslations("membership");
   const { user, session, loading: authLoading } = useAuth();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [switched, setSwitched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Stable for the lifetime of this mount (survives React StrictMode's dev-only
@@ -158,6 +159,12 @@ export function CheckoutForm({
 
       if (!res.ok) {
         setError(body?.error ?? t("checkoutError"));
+        return;
+      }
+      // A plan switch on an existing subscription defers proration to the
+      // next invoice, so there's nothing to pay right now — no clientSecret.
+      if (body.switched) {
+        setSwitched(true);
         return;
       }
       setClientSecret(body.clientSecret);
@@ -206,11 +213,21 @@ export function CheckoutForm({
 
       {error && <Message text={error} ok={false} />}
 
-      {user && !clientSecret && !error && (
+      {user && switched && (
+        <div className="border border-black/15 p-6 flex flex-col gap-3">
+          <p className="type-h4 text-black">{t("switchSuccessTitle")}</p>
+          <p className="type-body text-gray-2">{t("switchSuccessDesc")}</p>
+          <Link href="/membership" className="type-ui-medium text-blue-2 hover:underline self-start">
+            {t("backToPlans")}
+          </Link>
+        </div>
+      )}
+
+      {user && !clientSecret && !error && !switched && (
         <p className="type-body text-gray-2">{t("processing")}</p>
       )}
 
-      {user && clientSecret && (
+      {user && clientSecret && !switched && (
         <StripeElementsWrapper clientSecret={clientSecret} isDonationOnly={isDonationOnly} />
       )}
     </div>

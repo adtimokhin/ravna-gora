@@ -250,7 +250,20 @@
     "successDesc": "Thank you for joining the Movement. A confirmation will be in your inbox shortly.",
     "successCta": "Go to My Account →",
     "donationSuccessTitle": "Thank You!",
-    "donationSuccessDesc": "Your donation helps preserve the Movement's history and legacy."
+    "donationSuccessDesc": "Your donation helps preserve the Movement's history and legacy.",
+    "currentMembershipLabel": "Your Current Membership",
+    "currentPlanBadge": "Current Plan",
+    "renewsOnLabel": "Renews on {date}",
+    "cancelsOnLabel": "Ends on {date} — won't renew",
+    "cancelMembershipCta": "Cancel Membership",
+    "reactivateCta": "Reactivate Membership",
+    "cancelConfirm": "Cancel your membership? You'll keep access until the end of your current billing period.",
+    "cancelSuccess": "Your membership will end at the close of the current billing period.",
+    "reactivateSuccess": "Your membership will continue to renew as normal.",
+    "currentPlanButtonLabel": "This Is Your Current Plan",
+    "switchToThisPlan": "Switch to This Plan →",
+    "switchSuccessTitle": "Plan Switched",
+    "switchSuccessDesc": "Your membership has been updated. Any billing adjustment will appear on your next invoice."
   },
   "newspaper": {
     "backToCatalog": "← Catalog",

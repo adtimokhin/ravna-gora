@@ -12,12 +12,19 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
   if (!admin) return;
 
   const periodEnd = subscription.items.data[0]?.current_period_end;
+  const { plan, edition } = subscription.metadata;
 
   const { error } = await admin
     .from("memberships")
     .update({
+      // Plan/edition switches update the subscription's own metadata (see
+      // app/api/membership/checkout/route.ts) — mirrored here too as a
+      // safety net alongside that route's own direct Supabase write.
+      ...(plan ? { plan } : {}),
+      ...(edition ? { edition } : {}),
       status: subscription.status,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+      cancel_at_period_end: subscription.cancel_at_period_end,
       updated_at: new Date().toISOString(),
     })
     .eq("stripe_subscription_id", subscription.id);

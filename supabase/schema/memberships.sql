@@ -14,9 +14,14 @@ create table if not exists public.memberships (
   edition text check (edition in ('digital', 'print', 'both')),
   status text not null default 'incomplete',
   current_period_end timestamptz,
+  cancel_at_period_end boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Safe to re-run against an already-existing table from before this column
+-- was added.
+alter table public.memberships add column if not exists cancel_at_period_end boolean not null default false;
 
 alter table public.memberships enable row level security;
 
