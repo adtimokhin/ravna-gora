@@ -188,8 +188,6 @@
     "resetPassword": "Ресетујте лозинку",
     "billing": "Чланство и наплата",
     "currentPlan": "Тренутни план",
-    "renewsOn": "Обнавља се",
-    "managePlan": "Управљај планом",
     "security": "Безбедност",
     "changePassword": "Промените лозинку",
     "currentPassword": "Тренутна лозинка",
@@ -216,7 +214,13 @@
     "errorCurrentPassword": "Тренутна лозинка је нетачна.",
     "errorGeneric": "Нешто је пошло наопако. Покушајте поново.",
     "notLoggedIn": "Пријавите се да бисте видели свој налог.",
-    "goToSignIn": "Пријавите се"
+    "goToSignIn": "Пријавите се",
+    "noMembership": "Нема активног чланства",
+    "noMembershipDesc": "Тренутно немате чланство. Придружите се да подржите Покрет и примате Србију.",
+    "viewPlansCta": "Погледај планове чланства →",
+    "changePlanCta": "Промени план чланства",
+    "updatePaymentMethodCta": "Измени начин плаћања",
+    "cancelSubscriptionCta": "Откажи претплату"
   },
   "membership": {
     "title": "Чланство",
@@ -268,7 +272,14 @@
     "mailingAddressHeading": "Поштанска адреса",
     "mailingAddressDesc": "Где да пошаљемо ваш штампани примерак Србије?",
     "billingAddressRequired": "Молимо попуните адресу за наплату.",
-    "mailingAddressRequired": "Молимо попуните поштанску адресу."
+    "mailingAddressRequired": "Молимо попуните поштанску адресу.",
+    "updatePaymentMethodHeading": "Измена начина плаћања",
+    "updatePaymentMethodDesc": "Унесите податке о новој картици испод.",
+    "savePaymentMethod": "Сачувај начин плаћања",
+    "backToAccount": "← Назад на налог",
+    "signInToManage": "Пријавите се да бисте управљали својим чланством.",
+    "mailingAddressSaved": "Ваша поштанска адреса је ажурирана.",
+    "saveMailingAddress": "Сачувај поштанску адресу"
   },
   "newspaper": {
     "backToCatalog": "← Каталог",

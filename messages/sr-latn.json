@@ -188,8 +188,6 @@
     "resetPassword": "Resetujte lozinku",
     "billing": "Članstvo i naplata",
     "currentPlan": "Trenutni plan",
-    "renewsOn": "Obnavlja se",
-    "managePlan": "Upravljaj planom",
     "security": "Bezbednost",
     "changePassword": "Promenite lozinku",
     "currentPassword": "Trenutna lozinka",
@@ -216,7 +214,13 @@
     "errorCurrentPassword": "Trenutna lozinka je netačna.",
     "errorGeneric": "Nešto je pošlo naopako. Pokušajte ponovo.",
     "notLoggedIn": "Prijavite se da biste videli svoj nalog.",
-    "goToSignIn": "Prijavite se"
+    "goToSignIn": "Prijavite se",
+    "noMembership": "Nema aktivnog članstva",
+    "noMembershipDesc": "Trenutno nemate članstvo. Pridružite se da podržite Pokret i primate Srbiju.",
+    "viewPlansCta": "Pogledaj planove članstva →",
+    "changePlanCta": "Promeni plan članstva",
+    "updatePaymentMethodCta": "Izmeni način plaćanja",
+    "cancelSubscriptionCta": "Otkaži pretplatu"
   },
   "membership": {
     "title": "Članstvo",
@@ -268,7 +272,14 @@
     "mailingAddressHeading": "Poštanska adresa",
     "mailingAddressDesc": "Gde da pošaljemo vaš štampani primerak Srbije?",
     "billingAddressRequired": "Molimo popunite adresu za naplatu.",
-    "mailingAddressRequired": "Molimo popunite poštansku adresu."
+    "mailingAddressRequired": "Molimo popunite poštansku adresu.",
+    "updatePaymentMethodHeading": "Izmena načina plaćanja",
+    "updatePaymentMethodDesc": "Unesite podatke o novoj kartici ispod.",
+    "savePaymentMethod": "Sačuvaj način plaćanja",
+    "backToAccount": "← Nazad na nalog",
+    "signInToManage": "Prijavite se da biste upravljali svojim članstvom.",
+    "mailingAddressSaved": "Vaša poštanska adresa je ažurirana.",
+    "saveMailingAddress": "Sačuvaj poštansku adresu"
   },
   "newspaper": {
     "backToCatalog": "← Katalog",

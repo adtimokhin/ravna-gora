@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "../../../../lib/supabase-admin";
+import { getStripe } from "../../../../lib/stripe";
+import { MEMBERSHIP_ACTIVE_STATUSES } from "../../../../lib/membershipPlans";
 
 // Requires SUPABASE_SERVICE_ROLE_KEY (Project Settings → API → service_role
 // in the Supabase dashboard) — not the anon key used elsewhere in the app.
@@ -41,6 +43,62 @@ export async function POST(request: Request) {
   if (userError || !user) {
     console.error("[api/account/delete] token did not resolve to a user", userError);
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  // Every still-running subscription must be fully cancelled in Stripe before
+  // the account itself can be deleted — if any cancellation fails, the
+  // deletion must not proceed (an orphaned Supabase user would leave a live,
+  // still-billing Stripe subscription with no account attached to manage it).
+  const { data: activeMemberships, error: membershipsError } = await admin
+    .from("memberships")
+    .select("membership_id, stripe_subscription_id")
+    .eq("user_id", user.id)
+    .in("status", MEMBERSHIP_ACTIVE_STATUSES)
+    .not("stripe_subscription_id", "is", null);
+
+  console.log("[api/account/delete] active memberships lookup", {
+    userId: user.id,
+    count: activeMemberships?.length ?? 0,
+    membershipsError,
+  });
+
+  if (membershipsError) {
+    console.error("[api/account/delete] memberships lookup failed", membershipsError);
+    return NextResponse.json(
+      { error: "Could not verify your subscription status. Please try again." },
+      { status: 500 }
+    );
+  }
+
+  if (activeMemberships && activeMemberships.length > 0) {
+    const stripe = getStripe();
+    if (!stripe) {
+      console.error("[api/account/delete] Stripe is not configured — refusing to delete an account with an active subscription");
+      return NextResponse.json(
+        { error: "Could not cancel your subscription. Please try again later or contact support." },
+        { status: 500 }
+      );
+    }
+
+    for (const membership of activeMemberships) {
+      try {
+        await stripe.subscriptions.cancel(membership.stripe_subscription_id!);
+        console.log("[api/account/delete] subscription cancelled", {
+          userId: user.id,
+          subscriptionId: membership.stripe_subscription_id,
+        });
+      } catch (err) {
+        console.error("[api/account/delete] failed to cancel subscription — aborting deletion", {
+          userId: user.id,
+          subscriptionId: membership.stripe_subscription_id,
+          err,
+        });
+        return NextResponse.json(
+          { error: "Failed to cancel your subscription. Please try again or contact support before deleting your account." },
+          { status: 500 }
+        );
+      }
+    }
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);

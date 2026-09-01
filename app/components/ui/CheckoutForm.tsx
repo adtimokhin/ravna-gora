@@ -9,10 +9,11 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import type { Appearance, StripeAddressElementChangeEvent } from "@stripe/stripe-js";
+import type { StripeAddressElementChangeEvent } from "@stripe/stripe-js";
 import { useAuth } from "../providers/AuthProvider";
 import { Link, useRouter } from "../../../i18n/navigation";
 import { getStripeClient } from "../../../lib/stripe-client";
+import { STRIPE_APPEARANCE } from "../../../lib/stripeAppearance";
 import { Message } from "./account/shared";
 
 type Plan = "supporting" | "full";
@@ -26,37 +27,6 @@ const PLAN_PRICE_KEY: Record<Plan, "supportingPrice" | "fullPrice"> = {
 // Restricts the shipping AddressElement's country selector to the site's
 // actual chapter countries, rather than Stripe's full world list.
 const MAILING_ALLOWED_COUNTRIES = ["US", "CA", "AU", "GB"];
-
-const APPEARANCE: Appearance = {
-  theme: "stripe",
-  variables: {
-    colorPrimary: "#153c8c",
-    colorBackground: "#ffffff",
-    colorText: "#000000",
-    colorDanger: "#dc2626",
-    // The site's Inter is self-hosted via next/font and isn't reachable from
-    // Stripe's sandboxed iframe, so this falls back to the closest system
-    // sans-serif rather than pulling in a second font-loading mechanism.
-    fontFamily: '"Inter", system-ui, sans-serif',
-    borderRadius: "0px",
-  },
-  rules: {
-    ".Input": {
-      border: "1px solid rgba(0,0,0,0.2)",
-      boxShadow: "none",
-      padding: "12px 16px",
-    },
-    ".Input:focus": {
-      border: "1px solid #153c8c",
-      boxShadow: "none",
-    },
-    ".Label": {
-      color: "rgba(0,0,0,0.5)",
-      fontWeight: "500",
-      fontSize: "12px",
-    },
-  },
-};
 
 function PaymentSubmitForm({
   isDonationOnly,
@@ -337,7 +307,7 @@ function StripeElementsWrapper({
   const [stripePromise] = useState(() => getStripeClient());
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret, appearance: APPEARANCE }}>
+    <Elements stripe={stripePromise} options={{ clientSecret, appearance: STRIPE_APPEARANCE }}>
       <PaymentSubmitForm
         isDonationOnly={isDonationOnly}
         requireMailingAddress={requireMailingAddress}

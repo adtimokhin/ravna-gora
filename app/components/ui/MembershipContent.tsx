@@ -1,23 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
-import { supabase } from "../../../lib/supabase";
-import { MEMBERSHIP_ACTIVE_STATUSES } from "../../../lib/membershipPlans";
+import { useMembership } from "../../../lib/useMembership";
 import { Message } from "./account/shared";
 
 type Plan = "supporting" | "full";
 type Edition = "digital" | "print" | "both";
-
-type MembershipRow = {
-  plan: Plan;
-  edition: Edition | null;
-  status: string;
-  cancel_at_period_end: boolean;
-  current_period_end: string | null;
-};
 
 function RadioDot({ active }: { active: boolean }) {
   return (
@@ -50,35 +41,9 @@ export function MembershipContent() {
   const [donation, setDonation] = useState("");
   const [customDonation, setCustomDonation] = useState("");
 
-  const [membership, setMembership] = useState<MembershipRow | null>(null);
+  const { membership, hasActiveMembership, setCancelAtPeriodEnd } = useMembership(user, session);
   const [cancelMsg, setCancelMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-
-    let cancelled = false;
-
-    // A user can have more than one row here over time — the one worth
-    // reflecting in the UI is their most recent one.
-    supabase
-      .from("memberships")
-      .select("plan, edition, status, cancel_at_period_end, current_period_end")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled || error || !data) return;
-        setMembership(data as MembershipRow);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
-
-  const hasActiveMembership = !!membership && MEMBERSHIP_ACTIVE_STATUSES.includes(membership.status);
 
   const selectedPlan: Plan = plan ?? (hasActiveMembership ? membership!.plan : "full");
   const selectedEdition: Edition =
@@ -118,24 +83,15 @@ export function MembershipContent() {
     setCancelLoading(true);
     setCancelMsg(null);
 
-    const res = await fetch("/api/membership/cancel", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token ?? ""}`,
-      },
-      body: JSON.stringify({ cancelAtPeriodEnd }),
-    });
-    const body = await res.json().catch(() => null);
+    const { ok, error } = await setCancelAtPeriodEnd(cancelAtPeriodEnd);
 
     setCancelLoading(false);
 
-    if (!res.ok) {
-      setCancelMsg({ text: body?.error ?? t("checkoutError"), ok: false });
+    if (!ok) {
+      setCancelMsg({ text: error ?? t("checkoutError"), ok: false });
       return;
     }
 
-    setMembership((prev) => (prev ? { ...prev, cancel_at_period_end: body.cancelAtPeriodEnd } : prev));
     setCancelMsg({ text: cancelAtPeriodEnd ? t("cancelSuccess") : t("reactivateSuccess"), ok: true });
   }
 

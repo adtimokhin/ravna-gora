@@ -188,8 +188,6 @@
     "resetPassword": "Reset Password",
     "billing": "Membership & Billing",
     "currentPlan": "Current Plan",
-    "renewsOn": "Renews on",
-    "managePlan": "Manage Plan",
     "security": "Security",
     "changePassword": "Change Password",
     "currentPassword": "Current password",
@@ -216,7 +214,13 @@
     "errorCurrentPassword": "Current password is incorrect.",
     "errorGeneric": "Something went wrong. Please try again.",
     "notLoggedIn": "Please sign in to view your account.",
-    "goToSignIn": "Sign In"
+    "goToSignIn": "Sign In",
+    "noMembership": "No Active Membership",
+    "noMembershipDesc": "You don't currently have a membership. Join to support the Movement and receive Srbija.",
+    "viewPlansCta": "View Membership Plans →",
+    "changePlanCta": "Change Subscription Plan",
+    "updatePaymentMethodCta": "Update Payment Method",
+    "cancelSubscriptionCta": "Cancel Subscription"
   },
   "membership": {
     "title": "Membership",
@@ -268,7 +272,14 @@
     "mailingAddressHeading": "Mailing Address",
     "mailingAddressDesc": "Where should we mail your printed copy of Srbija?",
     "billingAddressRequired": "Please complete your billing address.",
-    "mailingAddressRequired": "Please complete the mailing address."
+    "mailingAddressRequired": "Please complete the mailing address.",
+    "updatePaymentMethodHeading": "Update Payment Method",
+    "updatePaymentMethodDesc": "Enter your new card details below.",
+    "savePaymentMethod": "Save Payment Method",
+    "backToAccount": "← Back to Account",
+    "signInToManage": "Please sign in to manage your membership.",
+    "mailingAddressSaved": "Your mailing address has been updated.",
+    "saveMailingAddress": "Save Mailing Address"
   },
   "newspaper": {
     "backToCatalog": "← Catalog",
