@@ -228,11 +228,22 @@
     "imageAlt": "Članstvo",
     "supporting": "Pridružni član",
     "supportingDesc": "Uključuje pretplatu na novine Srbija, sa izborom digitalnog pristupa, štampanog izdanja ili oba.",
+    "supportingFeatures": [
+      "Pretplata na novine Srbija",
+      "Izbor digitalnog, štampanog ili oba izdanja",
+      "Podrška misiji Pokreta"
+    ],
     "supportingPrice": "$35",
     "full": "Punopravni član",
     "fullDesc": "Uključuje novine Srbija i puno učešće u privilegijama i aktivnostima članstva.",
+    "fullFeatures": [
+      "Uključuje novine Srbija",
+      "Puno učešće u privilegijama članstva",
+      "Pristup aktivnostima i događajima Pokreta"
+    ],
     "fullPrice": "$60",
     "perYear": "/ godišnje",
+    "popularBadge": "(Popularno)",
     "editionDigital": "Digitalno",
     "editionPrint": "Štampano",
     "editionBoth": "Oba",
@@ -242,7 +253,8 @@
     "donationCustom": "Proizvoljan iznos",
     "continueToPayment": "Nastavite na plaćanje →",
     "donationOptional": "Dodajte jednokratni prilog (opciono)",
-    "donationOnlyCta": "Donirajte {amount}, bez članstva →",
+    "chooseAmountLabel": "Izaberite iznos",
+    "donateInsteadCta": "Želite samo da donirate? →",
     "donationLineLabel": "Jednokratni prilog",
     "signInRequired": "Potrebna je prijava",
     "signInToContinue": "Prijavite se da biste dovršili članstvo.",

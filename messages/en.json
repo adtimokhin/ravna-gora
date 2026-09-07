@@ -228,11 +228,22 @@
     "imageAlt": "Membership",
     "supporting": "Supporting Member",
     "supportingDesc": "Includes a subscription to the newspaper Serbia, with a choice of digital access, printed edition, or both.",
+    "supportingFeatures": [
+      "Subscription to the newspaper Serbia",
+      "Choose digital, print, or both editions",
+      "Support the Movement's mission"
+    ],
     "supportingPrice": "$35",
     "full": "Full Member",
     "fullDesc": "Includes the newspaper Serbia and full participation in the privileges and activities of membership.",
+    "fullFeatures": [
+      "Includes the newspaper Serbia",
+      "Full participation in membership privileges",
+      "Access to the Movement's activities and events"
+    ],
     "fullPrice": "$60",
     "perYear": "/ year",
+    "popularBadge": "(Popular)",
     "editionDigital": "Digital",
     "editionPrint": "Print",
     "editionBoth": "Both",
@@ -242,7 +253,8 @@
     "donationCustom": "Custom amount",
     "continueToPayment": "Continue to Payment →",
     "donationOptional": "Add a one-time donation (optional)",
-    "donationOnlyCta": "Donate {amount} only, skip membership →",
+    "chooseAmountLabel": "Choose an amount",
+    "donateInsteadCta": "Just want to donate instead? →",
     "donationLineLabel": "One-time donation",
     "signInRequired": "Sign In Required",
     "signInToContinue": "Please sign in to complete your membership.",

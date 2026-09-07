@@ -244,14 +244,71 @@ function OrderSummary({
   );
 }
 
+const QUICK_DONATION_AMOUNTS = ["$10", "$25", "$50", "$100"];
+
+// Letting the donation amount be chosen here — right before the order is
+// confirmed and the actual Stripe object (subscription or PaymentIntent) is
+// created — rather than back on /membership, is what makes "add a donation
+// to this purchase" unambiguous: it's editable up until the moment it's
+// actually charged, and impossible to accidentally forget you set it.
+function DonationAddOn({
+  isDonationOnly,
+  donation,
+  setDonation,
+  customDonation,
+  setCustomDonation,
+}: {
+  isDonationOnly: boolean;
+  donation: string;
+  setDonation: (value: string) => void;
+  customDonation: string;
+  setCustomDonation: (value: string) => void;
+}) {
+  const t = useTranslations("membership");
+
+  return (
+    <div className="border border-black/15 p-6 flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="type-h4 text-black">{isDonationOnly ? t("chooseAmountLabel") : t("donationTitle")}</h2>
+        {!isDonationOnly && <p className="type-caption text-gray-2">{t("donationOptional")}</p>}
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {QUICK_DONATION_AMOUNTS.map((amt) => (
+          <button
+            key={amt}
+            type="button"
+            onClick={() => { setDonation(amt); setCustomDonation(""); }}
+            className={`cursor-pointer type-ui-medium px-6 py-2.5 border transition-colors ${donation === amt ? "bg-black text-white border-black" : "border-black/20 text-black hover:border-black"}`}
+          >
+            {amt}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="type-label text-gray-2">{t("donationCustom")}</label>
+        <div className="flex items-center gap-2 border border-black/20 bg-white px-4 py-3">
+          <span className="type-body text-gray-2">$</span>
+          <input
+            type="text"
+            value={customDonation}
+            onChange={(e) => { setCustomDonation(e.target.value); setDonation(""); }}
+            placeholder="0.00"
+            className="flex-1 bg-transparent type-body text-black placeholder:text-gray-3 outline-none"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CheckoutForm({
   plan,
   edition,
-  donationCents,
 }: {
   plan: Plan | null;
   edition: Edition | null;
-  donationCents: number;
 }) {
   const t = useTranslations("membership");
   const { user, session, loading: authLoading } = useAuth();
@@ -259,6 +316,21 @@ export function CheckoutForm({
   const [switched, setSwitched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formStatus, setFormStatus] = useState<FormStatus>({ canSubmit: false, submitting: false });
+
+  // Donation amount is chosen here, on the checkout page itself, rather than
+  // back on /membership — see DonationAddOn above. `orderConfirmed` gates the
+  // actual Stripe object creation (subscription or PaymentIntent) behind an
+  // explicit step, since that's the moment the donation amount gets baked in
+  // (as a subscription invoice item, or as the PaymentIntent's own amount)
+  // and can no longer be changed.
+  const [donation, setDonation] = useState("");
+  const [customDonation, setCustomDonation] = useState("");
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+
+  const donationAmount = donation
+    ? Number(donation.replace(/\D/g, ""))
+    : Math.round(Number(customDonation.replace(/[^\d.]/g, "")) || 0);
+  const donationCents = Math.round(donationAmount * 100);
 
   // Stable for the lifetime of this mount (survives React StrictMode's dev-only
   // double-invoke of effects) and sent to Stripe as an idempotency key, so a
@@ -293,7 +365,7 @@ export function CheckoutForm({
   }, [user, switched]);
 
   useEffect(() => {
-    if (authLoading || !user || !session) return;
+    if (authLoading || !user || !session || !orderConfirmed) return;
     // Guards the one real request against React StrictMode's dev-only
     // mount→cleanup→remount cycle. Deliberately not paired with a `cancelled`
     // flag on cleanup — since this ref already prevents a second attempt from
@@ -331,7 +403,7 @@ export function CheckoutForm({
       }
       setClientSecret(body.clientSecret);
     })();
-  }, [authLoading, user, session, plan, edition, donationCents, idempotencyKey, t]);
+  }, [authLoading, user, session, orderConfirmed, plan, edition, donationCents, idempotencyKey, t]);
 
   const heading = (
     <div className="flex flex-col gap-2">
@@ -378,23 +450,45 @@ export function CheckoutForm({
             {heading}
             <OrderSummary plan={plan} edition={edition} donationCents={donationCents} />
 
-            {clientSecret && (
-              <button
-                type="submit"
-                form={PAYMENT_FORM_ID}
-                disabled={!formStatus.canSubmit || formStatus.submitting}
-                className="cursor-pointer bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-60"
-              >
-                {formStatus.submitting ? t("processing") : t("payNow")}
-              </button>
+            {!orderConfirmed ? (
+              <>
+                <DonationAddOn
+                  isDonationOnly={isDonationOnly}
+                  donation={donation}
+                  setDonation={setDonation}
+                  customDonation={customDonation}
+                  setCustomDonation={setCustomDonation}
+                />
+                <button
+                  type="button"
+                  onClick={() => setOrderConfirmed(true)}
+                  disabled={isDonationOnly && donationCents <= 0}
+                  className="cursor-pointer bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t("continueToPayment")}
+                </button>
+              </>
+            ) : (
+              clientSecret && (
+                <button
+                  type="submit"
+                  form={PAYMENT_FORM_ID}
+                  disabled={!formStatus.canSubmit || formStatus.submitting}
+                  className="cursor-pointer bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {formStatus.submitting ? t("processing") : t("payNow")}
+                </button>
+              )
             )}
           </div>
 
           {/* Right column: scrolls normally. */}
           <div className="flex flex-col gap-6">
-            {!clientSecret && !error && <p className="type-body text-gray-2">{t("processing")}</p>}
+            {orderConfirmed && !clientSecret && !error && (
+              <p className="type-body text-gray-2">{t("processing")}</p>
+            )}
 
-            {clientSecret && session && (
+            {orderConfirmed && clientSecret && session && (
               <StripeElementsWrapper
                 clientSecret={clientSecret}
                 isDonationOnly={isDonationOnly}
