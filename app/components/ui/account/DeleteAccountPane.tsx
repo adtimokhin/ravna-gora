@@ -3,44 +3,33 @@
 import { useState } from "react";
 import { useRouter } from "../../../../i18n/navigation";
 import { supabase } from "../../../../lib/supabase";
+import { workerFetch } from "../../../../lib/workerApi";
 import { DangerButton, Field, Message, PaneDescription, PaneTitle, TextInput } from "./shared";
 
+const CONFIRM_WORD = "DEACTIVATE";
+
+// Calls the Worker's POST /deactivate-account: it pauses + cancels every
+// active subscription in Stripe and bans the Supabase auth user (no hard
+// delete, no undo from the app). The user is signed out afterward and can no
+// longer sign in.
 export function DeleteAccountPane({ t }: { t: (key: string) => string }) {
   const router = useRouter();
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
 
-  async function handleDelete() {
+  async function handleDeactivate() {
     setMsg(null);
     setLoading(true);
-    console.log("[account:delete] requesting session for access token");
 
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
-    console.log("[account:delete] getSession result", {
-      hasSession: !!session,
-      hasAccessToken: !!session?.access_token,
-      sessionError,
-    });
-
-    const res = await fetch("/api/account/delete", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
-    });
-    const body = await res.json().catch(() => null);
-    console.log("[account:delete] /api/account/delete response", { status: res.status, body });
-
-    if (!res.ok) {
-      console.error("[account:delete] delete request failed", { status: res.status, body });
+    try {
+      await workerFetch("/deactivate-account", { method: "POST" });
+    } catch (err) {
       setLoading(false);
-      setMsg({ text: body?.error ?? t("errorGeneric"), ok: false });
+      setMsg({ text: err instanceof Error ? err.message : t("errorGeneric"), ok: false });
       return;
     }
 
-    console.log("[account:delete] account deleted, signing out");
     await supabase.auth.signOut();
     router.push("/");
   }
@@ -48,10 +37,10 @@ export function DeleteAccountPane({ t }: { t: (key: string) => string }) {
   return (
     <div className="flex flex-col gap-8">
       <PaneTitle>{t("dangerZone")}</PaneTitle>
-      <PaneDescription>{t("deleteAccountDesc")}</PaneDescription>
+      <PaneDescription>{t("deactivateAccountDesc")}</PaneDescription>
 
       <div className="flex flex-col gap-5 max-w-md">
-        <Field label={t("deleteConfirmPlaceholder")}>
+        <Field label={t("deactivateConfirmPlaceholder")}>
           <TextInput
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
@@ -61,10 +50,10 @@ export function DeleteAccountPane({ t }: { t: (key: string) => string }) {
         {msg && <Message text={msg.text} ok={msg.ok} />}
 
         <DangerButton
-          onClick={handleDelete}
-          disabled={confirmText !== "DELETE" || loading}
+          onClick={handleDeactivate}
+          disabled={confirmText !== CONFIRM_WORD || loading}
         >
-          {loading ? "…" : t("deleteConfirmButton")}
+          {loading ? "…" : t("deactivateConfirmButton")}
         </DangerButton>
       </div>
     </div>

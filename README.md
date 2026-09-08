@@ -42,9 +42,24 @@ NEXT_PUBLIC_SANITY_DATASET=production
 NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 
-# Cloudflare Worker (serves PDFs from R2)
+# Cloudflare Worker (serves PDFs from R2; handles all Stripe membership flows)
 NEXT_PUBLIC_WORKER_URL=https://your-worker.workers.dev
+
+# Supabase service role (admin user-management API routes only)
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Stripe price ids (test/live). Client-side price resolution (lib/stripePrices.ts);
+# each must also be a key in the Worker's STRIPE_PRICE_MAP secret.
+NEXT_PUBLIC_STRIPE_PRICE_SUPPORTING_DIGITAL=price_...
+NEXT_PUBLIC_STRIPE_PRICE_SUPPORTING_PRINT=price_...
+NEXT_PUBLIC_STRIPE_PRICE_SUPPORTING_BOTH=price_...
+NEXT_PUBLIC_STRIPE_PRICE_FULL=price_...
 ```
+
+> All Stripe secret handling (secret key, webhook secret, checkout & subscription
+> lifecycle, account deactivation, gift memberships) lives in the Cloudflare
+> Worker. The frontend only calls the Worker's HTTP API with the user's Supabase
+> access token.
 
 ---
 
