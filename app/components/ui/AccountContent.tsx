@@ -46,7 +46,7 @@ export function AccountContent() {
     { key: "password", label: t("changePassword") },
     { key: "forgotPassword", label: t("resetPassword") },
     { key: "billing", label: t("billing") },
-    { key: "delete", label: t("deleteAccount"), variant: "danger" },
+    { key: "delete", label: t("deactivateAccount"), variant: "danger" },
   ];
 
   async function handleSignOut() {

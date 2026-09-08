@@ -218,9 +218,11 @@
     "noMembership": "No Active Membership",
     "noMembershipDesc": "You don't currently have a membership. Join to support the Movement and receive Srbija.",
     "viewPlansCta": "View Membership Plans →",
-    "changePlanCta": "Change Subscription Plan",
-    "updatePaymentMethodCta": "Update Payment Method",
-    "cancelSubscriptionCta": "Cancel Subscription"
+    "cancelSubscriptionCta": "Cancel Subscription",
+    "deactivateAccount": "Deactivate Account",
+    "deactivateAccountDesc": "Permanently deactivate your account. Any active subscriptions are cancelled, and you will be signed out and unable to sign in again. This cannot be undone from the site.",
+    "deactivateConfirmPlaceholder": "Type DEACTIVATE to confirm",
+    "deactivateConfirmButton": "Permanently Deactivate Account"
   },
   "membership": {
     "title": "Membership",
@@ -292,7 +294,10 @@
     "backToAccount": "← Back to Account",
     "signInToManage": "Please sign in to manage your membership.",
     "mailingAddressSaved": "Your mailing address has been updated.",
-    "saveMailingAddress": "Save Mailing Address"
+    "saveMailingAddress": "Save Mailing Address",
+    "cancelToSwitch": "Cancel to Switch Plans",
+    "switchHint": "To change your plan or payment card, cancel your current membership and subscribe again once the current period ends.",
+    "donationAmountRequired": "Please choose a donation amount."
   },
   "newspaper": {
     "backToCatalog": "← Catalog",

@@ -3,12 +3,13 @@ import { Navbar } from "../../../components/layout/Navbar";
 import { Footer } from "../../../components/layout/Footer";
 import { Link } from "../../../../i18n/navigation";
 
-export default async function MembershipSuccessPage({
+export default async function DonateSuccessPage({
   searchParams,
 }: {
   // `session_id` is the Stripe Checkout Session id, substituted into
-  // MEMBERSHIP_SUCCESS_URL by the Worker. Accepted but not read — the
-  // membership row is written asynchronously by the Worker's Stripe webhook.
+  // DONATION_SUCCESS_URL by the Worker. Accepted but not read — the donations
+  // row is written asynchronously by the Worker's Stripe webhook, so this
+  // page just shows a generic thank-you.
   searchParams: Promise<{ session_id?: string }>;
 }) {
   await searchParams;
@@ -20,8 +21,8 @@ export default async function MembershipSuccessPage({
 
       <main className="flex-1 flex items-center justify-center px-4">
         <div className="flex flex-col items-center text-center gap-4 max-w-md py-(--space-10)">
-          <h1 className="type-h1 text-black">{t("successTitle")}</h1>
-          <p className="type-body text-gray-2">{t("successDesc")}</p>
+          <h1 className="type-h1 text-black">{t("donationSuccessTitle")}</h1>
+          <p className="type-body text-gray-2">{t("donationSuccessDesc")}</p>
           <Link href="/account" className="type-ui-medium text-blue-2 hover:underline">
             {t("successCta")}
           </Link>

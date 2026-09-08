@@ -5,29 +5,28 @@ import { useTranslations } from "next-intl";
 import { Link } from "../../../../i18n/navigation";
 import { useAuth } from "../../providers/AuthProvider";
 import { useMembership } from "../../../../lib/useMembership";
-import { MailingAddressEditor } from "./MailingAddressEditor";
 import { PaneTitle, Message, DangerButton } from "./shared";
 
 // Matches SecondaryButton's own classes (app/components/ui/account/shared.tsx)
-// — that component only renders a <button>, but these two actions navigate.
+// — that component only renders a <button>, but this action navigates.
 const LINK_BUTTON_CLASS =
   "cursor-pointer border border-black type-ui-serif text-black px-7 py-2.5 hover:bg-black hover:text-white transition-colors self-start inline-block text-center";
 
 export function BillingPane({ t }: { t: (key: string) => string }) {
   const tMembership = useTranslations("membership");
   const { user, session } = useAuth();
-  const { membership, membershipLoading, hasActiveMembership, setCancelAtPeriodEnd } = useMembership(user, session);
+  const { membership, membershipLoading, hasActiveMembership, cancelMembership } = useMembership(user, session);
 
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelMsg, setCancelMsg] = useState<{ text: string; ok: boolean } | null>(null);
 
-  async function handleCancelToggle(cancelAtPeriodEnd: boolean) {
-    if (cancelAtPeriodEnd && !window.confirm(tMembership("cancelConfirm"))) return;
+  async function handleCancel() {
+    if (!window.confirm(tMembership("cancelConfirm"))) return;
 
     setCancelLoading(true);
     setCancelMsg(null);
 
-    const { ok, error } = await setCancelAtPeriodEnd(cancelAtPeriodEnd);
+    const { ok, error } = await cancelMembership();
 
     setCancelLoading(false);
 
@@ -36,10 +35,7 @@ export function BillingPane({ t }: { t: (key: string) => string }) {
       return;
     }
 
-    setCancelMsg({
-      text: cancelAtPeriodEnd ? tMembership("cancelSuccess") : tMembership("reactivateSuccess"),
-      ok: true,
-    });
+    setCancelMsg({ text: tMembership("cancelSuccess"), ok: true });
   }
 
   const renewalDate = membership?.current_period_end
@@ -88,34 +84,17 @@ export function BillingPane({ t }: { t: (key: string) => string }) {
 
           <div className="flex flex-col gap-3 pt-2">
             <Link href="/membership" className={LINK_BUTTON_CLASS}>
-              {t("changePlanCta")}
+              {t("viewPlansCta")}
             </Link>
 
-            <Link href="/membership/payment-method" className={LINK_BUTTON_CLASS}>
-              {t("updatePaymentMethodCta")}
-            </Link>
-
-            {membership.cancel_at_period_end ? (
-              <button
-                onClick={() => handleCancelToggle(false)}
-                disabled={cancelLoading}
-                className={LINK_BUTTON_CLASS}
-              >
-                {tMembership("reactivateCta")}
-              </button>
-            ) : (
-              <DangerButton onClick={() => handleCancelToggle(true)} disabled={cancelLoading}>
+            {!membership.cancel_at_period_end && membership.stripe_subscription_id && (
+              <DangerButton onClick={handleCancel} disabled={cancelLoading}>
                 {t("cancelSubscriptionCta")}
               </DangerButton>
             )}
           </div>
-        </div>
-      )}
 
-      {!membershipLoading && hasActiveMembership && membership && session && (
-        <div className="border border-black/15 p-6 flex flex-col gap-4 max-w-md">
-          <p className="type-h4 text-black">{tMembership("mailingAddressHeading")}</p>
-          <MailingAddressEditor membershipId={membership.membership_id} accessToken={session.access_token} />
+          <p className="type-caption-serif text-gray-2">{tMembership("switchHint")}</p>
         </div>
       )}
     </div>

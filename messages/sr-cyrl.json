@@ -218,9 +218,11 @@
     "noMembership": "Нема активног чланства",
     "noMembershipDesc": "Тренутно немате чланство. Придружите се да подржите Покрет и примате Србију.",
     "viewPlansCta": "Погледај планове чланства →",
-    "changePlanCta": "Промени план чланства",
-    "updatePaymentMethodCta": "Измени начин плаћања",
-    "cancelSubscriptionCta": "Откажи претплату"
+    "cancelSubscriptionCta": "Откажи претплату",
+    "deactivateAccount": "Деактивирајте налог",
+    "deactivateAccountDesc": "Трајно деактивирајте свој налог. Све активне претплате биће отказане, бићете одјављени и нећете моћи поново да се пријавите. Ово се не може поништити са сајта.",
+    "deactivateConfirmPlaceholder": "Укуцајте DEACTIVATE да потврдите",
+    "deactivateConfirmButton": "Трајно деактивирај налог"
   },
   "membership": {
     "title": "Чланство",
@@ -292,7 +294,10 @@
     "backToAccount": "← Назад на налог",
     "signInToManage": "Пријавите се да бисте управљали својим чланством.",
     "mailingAddressSaved": "Ваша поштанска адреса је ажурирана.",
-    "saveMailingAddress": "Сачувај поштанску адресу"
+    "saveMailingAddress": "Сачувај поштанску адресу",
+    "cancelToSwitch": "Откажите да промените план",
+    "switchHint": "Да бисте променили план или платну картицу, откажите тренутно чланство и поново се претплатите када истекне текући период.",
+    "donationAmountRequired": "Изаберите износ донације."
   },
   "newspaper": {
     "backToCatalog": "← Каталог",

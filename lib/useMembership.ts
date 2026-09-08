@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { workerFetch } from "./workerApi";
 import { MEMBERSHIP_ACTIVE_STATUSES, type MembershipEdition, type MembershipPlan } from "./membershipPlans";
 
 export type MembershipRow = {
@@ -10,13 +11,16 @@ export type MembershipRow = {
   status: string;
   cancel_at_period_end: boolean;
   current_period_end: string | null;
+  // Null for gift memberships (no Stripe subscription). Needed as the body of
+  // the Worker's POST /cancel-subscription.
+  stripe_subscription_id: string | null;
 };
 
 // Shared between /membership and the account page's billing pane, so both
 // read the same "most recent membership row" and mutate it the same way —
 // see the comment on MEMBERSHIP_ACTIVE_STATUSES for why "most recent" matters.
 // Translation-agnostic on purpose: callers own confirm dialogs and
-// success/error copy, this just does the fetch and the API call.
+// success/error copy, this just does the fetch and the Worker call.
 export function useMembership(user: User | null, session: Session | null) {
   const [membership, setMembership] = useState<MembershipRow | null>(null);
   const [membershipLoading, setMembershipLoading] = useState(!!user);
@@ -41,7 +45,7 @@ export function useMembership(user: User | null, session: Session | null) {
 
     supabase
       .from("memberships")
-      .select("membership_id, plan, edition, status, cancel_at_period_end, current_period_end")
+      .select("membership_id, plan, edition, status, cancel_at_period_end, current_period_end, stripe_subscription_id")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -59,24 +63,28 @@ export function useMembership(user: User | null, session: Session | null) {
 
   const hasActiveMembership = !!membership && MEMBERSHIP_ACTIVE_STATUSES.includes(membership.status);
 
-  async function setCancelAtPeriodEnd(cancelAtPeriodEnd: boolean): Promise<{ ok: boolean; error?: string }> {
-    const res = await fetch("/api/membership/cancel", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token ?? ""}`,
-      },
-      body: JSON.stringify({ cancelAtPeriodEnd }),
-    });
-    const body = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      return { ok: false, error: body?.error };
+  // One-way: the Worker only exposes POST /cancel-subscription
+  // (cancel_at_period_end = true). Un-cancelling and switching plans are not
+  // supported by the backend — the member cancels and starts a fresh
+  // Checkout once the current period ends.
+  async function cancelMembership(): Promise<{ ok: boolean; error?: string }> {
+    if (!membership?.stripe_subscription_id) {
+      return { ok: false, error: "No active subscription to cancel." };
     }
 
-    setMembership((prev) => (prev ? { ...prev, cancel_at_period_end: body.cancelAtPeriodEnd } : prev));
+    try {
+      await workerFetch("/cancel-subscription", {
+        method: "POST",
+        body: { subscription_id: membership.stripe_subscription_id },
+        authToken: session?.access_token ?? null,
+      });
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : undefined };
+    }
+
+    setMembership((prev) => (prev ? { ...prev, cancel_at_period_end: true } : prev));
     return { ok: true };
   }
 
-  return { membership, membershipLoading, hasActiveMembership, setCancelAtPeriodEnd };
+  return { membership, membershipLoading, hasActiveMembership, cancelMembership };
 }

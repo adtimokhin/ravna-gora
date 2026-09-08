@@ -15,11 +15,6 @@ const SITE_GATE_ENABLED = true;
 // rewritten by next-intl.
 const GATE_PATH = "/site-password";
 
-// Stripe's webhook POSTs come from Stripe's servers, never carry the
-// site_access cookie, and can't fill out a password form — so this must
-// bypass the gate below entirely, not just the next-intl step.
-const STRIPE_WEBHOOK_PATH = "/api/stripe/webhook";
-
 // Paths next-intl shouldn't touch (matches the previous matcher's exclusions).
 const INTL_EXEMPT = /^\/(_next|api|studio)(\/|$)/;
 const HAS_EXTENSION = /\.[^/]+$/;
@@ -27,7 +22,7 @@ const HAS_EXTENSION = /\.[^/]+$/;
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === GATE_PATH || pathname === STRIPE_WEBHOOK_PATH || HAS_EXTENSION.test(pathname)) {
+  if (pathname === GATE_PATH || HAS_EXTENSION.test(pathname)) {
     return NextResponse.next();
   }
 

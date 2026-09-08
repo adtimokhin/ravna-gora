@@ -218,9 +218,11 @@
     "noMembership": "Nema aktivnog članstva",
     "noMembershipDesc": "Trenutno nemate članstvo. Pridružite se da podržite Pokret i primate Srbiju.",
     "viewPlansCta": "Pogledaj planove članstva →",
-    "changePlanCta": "Promeni plan članstva",
-    "updatePaymentMethodCta": "Izmeni način plaćanja",
-    "cancelSubscriptionCta": "Otkaži pretplatu"
+    "cancelSubscriptionCta": "Otkaži pretplatu",
+    "deactivateAccount": "Deaktivirajte nalog",
+    "deactivateAccountDesc": "Trajno deaktivirajte svoj nalog. Sve aktivne pretplate biće otkazane, bićete odjavljeni i nećete moći ponovo da se prijavite. Ovo se ne može poništiti sa sajta.",
+    "deactivateConfirmPlaceholder": "Ukucajte DEACTIVATE da potvrdite",
+    "deactivateConfirmButton": "Trajno deaktiviraj nalog"
   },
   "membership": {
     "title": "Članstvo",
@@ -292,7 +294,10 @@
     "backToAccount": "← Nazad na nalog",
     "signInToManage": "Prijavite se da biste upravljali svojim članstvom.",
     "mailingAddressSaved": "Vaša poštanska adresa je ažurirana.",
-    "saveMailingAddress": "Sačuvaj poštansku adresu"
+    "saveMailingAddress": "Sačuvaj poštansku adresu",
+    "cancelToSwitch": "Otkažite da promenite plan",
+    "switchHint": "Da biste promenili plan ili platnu karticu, otkažite trenutno članstvo i ponovo se pretplatite kada istekne tekući period.",
+    "donationAmountRequired": "Izaberite iznos donacije."
   },
   "newspaper": {
     "backToCatalog": "← Katalog",

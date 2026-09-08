@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
 import { useMembership } from "../../../lib/useMembership";
+import { getPriceId } from "../../../lib/stripePrices";
+import { workerFetch } from "../../../lib/workerApi";
 import { Message } from "./account/shared";
 
 type Plan = "supporting" | "full";
@@ -41,9 +43,12 @@ export function MembershipContent() {
   // derived state.
   const [edition, setEdition] = useState<Edition | null>(null);
 
-  const { membership, hasActiveMembership, setCancelAtPeriodEnd } = useMembership(user, session);
+  const { membership, hasActiveMembership, cancelMembership } = useMembership(user, session);
   const [cancelMsg, setCancelMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
+
+  const [checkoutLoading, setCheckoutLoading] = useState<Plan | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const selectedEdition: Edition =
     edition ?? (hasActiveMembership && membership!.plan === "supporting" && membership!.edition
@@ -60,32 +65,57 @@ export function MembershipContent() {
     hasActiveMembership && membership!.plan === "supporting" && (membership!.edition ?? null) === selectedEdition;
   const isCurrentFull = hasActiveMembership && membership!.plan === "full";
 
-  function subscribe(plan: Plan) {
-    const params = new URLSearchParams();
-    params.set("plan", plan);
-    if (plan === "supporting") params.set("edition", selectedEdition);
-    router.push(`/membership/checkout?${params.toString()}`);
+  // Start a hosted Stripe Checkout for `plan`. The Worker owns customer /
+  // subscription creation and returns a hosted URL to redirect to. It refuses
+  // (409) if the caller is already an active member — switching plans means
+  // cancelling first and subscribing again after the period ends.
+  async function subscribe(plan: Plan) {
+    setCheckoutError(null);
+
+    if (!user || !session) {
+      router.push("/login");
+      return;
+    }
+
+    const priceId = getPriceId(plan, plan === "supporting" ? selectedEdition : undefined);
+    if (!priceId) {
+      setCheckoutError(t("checkoutError"));
+      return;
+    }
+
+    setCheckoutLoading(plan);
+    try {
+      const { url } = await workerFetch<{ id: string; url: string }>("/create-checkout-session", {
+        method: "POST",
+        body: { price_id: priceId },
+        authToken: session.access_token,
+      });
+      if (!url) throw new Error(t("checkoutError"));
+      window.location.href = url;
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : t("checkoutError"));
+      setCheckoutLoading(null);
+    }
   }
 
-  // Donations are picked and confirmed on the checkout page itself — this
-  // just hands off to it with no plan selected.
+  // Donations are picked and confirmed on their own page — this just hands off.
   function goToDonate() {
-    router.push("/membership/checkout");
+    router.push("/donate");
   }
 
   function subscribeLabel(isCurrent: boolean) {
     if (isCurrent) return t("currentPlanButtonLabel");
-    if (hasActiveMembership) return t("switchToThisPlan");
+    if (hasActiveMembership) return t("cancelToSwitch");
     return t("continueToPayment");
   }
 
-  async function handleCancelToggle(cancelAtPeriodEnd: boolean) {
-    if (cancelAtPeriodEnd && !window.confirm(t("cancelConfirm"))) return;
+  async function handleCancel() {
+    if (!window.confirm(t("cancelConfirm"))) return;
 
     setCancelLoading(true);
     setCancelMsg(null);
 
-    const { ok, error } = await setCancelAtPeriodEnd(cancelAtPeriodEnd);
+    const { ok, error } = await cancelMembership();
 
     setCancelLoading(false);
 
@@ -94,7 +124,7 @@ export function MembershipContent() {
       return;
     }
 
-    setCancelMsg({ text: cancelAtPeriodEnd ? t("cancelSuccess") : t("reactivateSuccess"), ok: true });
+    setCancelMsg({ text: t("cancelSuccess"), ok: true });
   }
 
   const renewalDate = membership?.current_period_end
@@ -126,15 +156,19 @@ export function MembershipContent() {
 
           {cancelMsg && <Message text={cancelMsg.text} ok={cancelMsg.ok} />}
 
-          <button
-            onClick={() => handleCancelToggle(!membership!.cancel_at_period_end)}
-            disabled={cancelLoading}
-            className="cursor-pointer type-body text-blue-2 hover:underline self-start disabled:opacity-60"
-          >
-            {membership!.cancel_at_period_end ? t("reactivateCta") : t("cancelMembershipCta")}
-          </button>
+          {!membership!.cancel_at_period_end && membership!.stripe_subscription_id && (
+            <button
+              onClick={handleCancel}
+              disabled={cancelLoading}
+              className="cursor-pointer type-body text-blue-2 hover:underline self-start disabled:opacity-60"
+            >
+              {t("cancelMembershipCta")}
+            </button>
+          )}
         </div>
       )}
+
+      {checkoutError && <Message text={checkoutError} ok={false} />}
 
       {/* ── Plan cards ── */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch">
@@ -176,10 +210,10 @@ export function MembershipContent() {
 
           <button
             onClick={() => subscribe("supporting")}
-            disabled={isCurrentSupporting}
+            disabled={isCurrentSupporting || hasActiveMembership || checkoutLoading !== null}
             className="cursor-pointer mt-auto bg-blue-2 text-white type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {subscribeLabel(isCurrentSupporting)}
+            {checkoutLoading === "supporting" ? t("processing") : subscribeLabel(isCurrentSupporting)}
           </button>
         </div>
 
@@ -209,13 +243,17 @@ export function MembershipContent() {
 
           <button
             onClick={() => subscribe("full")}
-            disabled={isCurrentFull}
+            disabled={isCurrentFull || hasActiveMembership || checkoutLoading !== null}
             className="cursor-pointer mt-auto bg-white text-blue-2 type-ui-medium w-full py-4 text-center hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {subscribeLabel(isCurrentFull)}
+            {checkoutLoading === "full" ? t("processing") : subscribeLabel(isCurrentFull)}
           </button>
         </div>
       </div>
+
+      {hasActiveMembership && (
+        <p className="type-caption text-gray-2 -mt-(--space-6)">{t("switchHint")}</p>
+      )}
 
       {/* ── Just donate instead ── */}
       <button
