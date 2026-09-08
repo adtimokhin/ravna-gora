@@ -4,12 +4,14 @@ import { useState } from "react";
 import { AdminSidebar, type AdminSidebarItem } from "./AdminSidebar";
 import { IssuesPane } from "./IssuesPane";
 import { UsersPane } from "./UsersPane";
+import { GiftMembershipPane } from "./GiftMembershipPane";
 
-type Section = "issues" | "users";
+type Section = "issues" | "users" | "gift";
 
 const ITEMS: AdminSidebarItem[] = [
   { key: "issues", label: "Newspaper Issues" },
   { key: "users", label: "Users" },
+  { key: "gift", label: "Gift Membership" },
 ];
 
 export function AdminDashboard() {
@@ -28,6 +30,7 @@ export function AdminDashboard() {
       <div className="flex-1 min-w-0">
         {section === "issues" && <IssuesPane />}
         {section === "users" && <UsersPane />}
+        {section === "gift" && <GiftMembershipPane />}
       </div>
     </div>
   );
