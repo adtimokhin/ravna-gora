@@ -36,7 +36,8 @@ export async function PATCH(
   const { role, banned } = body as { role?: string; banned?: boolean };
 
   if (role !== undefined) {
-    if (role !== "admin" && role !== "user") {
+    // Mirrors the DB's `profiles_role_check` — only these two are valid.
+    if (role !== "admin" && role !== "member") {
       return NextResponse.json({ error: "Invalid role." }, { status: 400 });
     }
 

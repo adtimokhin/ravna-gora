@@ -135,7 +135,7 @@ export function UsersTable() {
               onChange={(e) => updateUser(u.id, { role: e.target.value })}
               className="type-caption border border-black/20 text-black px-2 py-1.5 shrink-0 disabled:opacity-50 bg-white"
             >
-              <option value="user">User</option>
+              <option value="member">Member</option>
               <option value="admin">Admin</option>
             </select>
 

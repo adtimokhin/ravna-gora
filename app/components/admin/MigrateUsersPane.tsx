@@ -16,8 +16,8 @@ const TEMPLATE_HEADER =
   "email,password,full_name,role,email_confirm,grant_membership,price_id,membership_expiration,recipient_name,line1,line2,city,state,postal_code,country";
 
 const EXAMPLE_CSV = `email,password,full_name,role,grant_membership,price_id,membership_expiration,line1,city,state,postal_code,country
-ana@example.org,S3cret-pass-1,Ana Maric,user,true,price_1UDCrxDEShjLnPXvm6jyQckz,2027-01-01,,,,,
-bo@example.org,S3cret-pass-2,Bo Kim,user,false,,,,,,,`;
+ana@example.org,S3cret-pass-1,Ana Maric,member,true,price_1UDCrxDEShjLnPXvm6jyQckz,2027-01-01,,,,,
+bo@example.org,S3cret-pass-2,Bo Kim,member,false,,,,,,,`;
 
 const MAX_ROWS = 500;
 
@@ -139,8 +139,8 @@ export function MigrateUsersPane() {
             First row is a header (case-insensitive, any order, unknown columns
             ignored). Required: <code>email</code>, <code>password</code>{" "}
             (8–72 chars). Optional: <code>full_name</code>, <code>role</code>{" "}
-            (<code>user</code>/<code>admin</code>), <code>email_confirm</code>{" "}
-            (default true).
+            (<code>member</code>/<code>admin</code>, default <code>member</code>),{" "}
+            <code>email_confirm</code> (default true).
           </p>
           <p>
             Set <code>grant_membership</code> to <code>true</code> to also
