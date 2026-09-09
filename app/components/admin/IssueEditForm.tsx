@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 import type { Issue } from "../../../lib/types";
 
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787";
@@ -41,6 +42,7 @@ interface Props {
 
 export function IssueEditForm({ issue }: Props) {
   const { session } = useAuth();
+  const { showError } = useDialog();
 
   const [issueNumber, setIssueNumber] = useState<number | "">(issue.issue_number);
   const [issueDate, setIssueDate] = useState(issue.issue_date);
@@ -93,7 +95,7 @@ export function IssueEditForm({ issue }: Props) {
     setSaving(false);
 
     if (dbErr) {
-      setErrors({ _submit: dbErr.message });
+      showError(dbErr.message);
       return;
     }
 
@@ -103,7 +105,6 @@ export function IssueEditForm({ issue }: Props) {
   async function handlePdfUpload() {
     if (!pdfFile || !session) return;
     setUploadingPdf(true);
-    setErrors((p) => ({ ...p, _pdf: "" }));
 
     const body = new FormData();
     body.append("file", pdfFile);
@@ -117,16 +118,10 @@ export function IssueEditForm({ issue }: Props) {
         setPdfFile(null);
       } else {
         const json = await res.json().catch(() => ({}));
-        setErrors((p) => ({
-          ...p,
-          _pdf: (json as { error?: string }).error ?? `Upload failed (${res.status})`,
-        }));
+        showError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
       }
     } catch (err) {
-      setErrors((p) => ({
-        ...p,
-        _pdf: err instanceof Error ? err.message : "Network error",
-      }));
+      showError(err instanceof Error ? err.message : "Network error");
     }
     setUploadingPdf(false);
   }
@@ -134,7 +129,6 @@ export function IssueEditForm({ issue }: Props) {
   async function handleCoverUpload() {
     if (!coverFile || !session) return;
     setUploadingCover(true);
-    setErrors((p) => ({ ...p, _cover: "" }));
 
     const body = new FormData();
     body.append("file", coverFile);
@@ -151,16 +145,10 @@ export function IssueEditForm({ issue }: Props) {
         setCoverPreview(null);
       } else {
         const json = await res.json().catch(() => ({}));
-        setErrors((p) => ({
-          ...p,
-          _cover: (json as { error?: string }).error ?? `Upload failed (${res.status})`,
-        }));
+        showError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
       }
     } catch (err) {
-      setErrors((p) => ({
-        ...p,
-        _cover: err instanceof Error ? err.message : "Network error",
-      }));
+      showError(err instanceof Error ? err.message : "Network error");
     }
     setUploadingCover(false);
   }
@@ -237,12 +225,6 @@ export function IssueEditForm({ issue }: Props) {
           </div>
         </div>
 
-        {errors._submit && (
-          <div className="border border-red-300 bg-red-50 px-4 py-3">
-            <p className="type-caption text-red-700">{errors._submit}</p>
-          </div>
-        )}
-
         <div className="flex items-center gap-4">
           <button
             type="submit"
@@ -272,10 +254,7 @@ export function IssueEditForm({ issue }: Props) {
           type="file"
           accept=".pdf,application/pdf"
           className="hidden"
-          onChange={(e) => {
-            setErrors((p) => ({ ...p, _pdf: "" }));
-            setPdfFile(e.target.files?.[0] ?? null);
-          }}
+          onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
         />
         <div className="flex items-center gap-3 flex-wrap">
           <button
@@ -307,7 +286,6 @@ export function IssueEditForm({ issue }: Props) {
             </>
           )}
         </div>
-        {errors._pdf && <p className="type-caption text-red-600">{errors._pdf}</p>}
       </div>
 
       <div className="h-px bg-black/10" />
@@ -336,7 +314,6 @@ export function IssueEditForm({ issue }: Props) {
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0] ?? null;
-            setErrors((p) => ({ ...p, _cover: "" }));
             setCoverFile(f);
             setCoverPreview(f ? URL.createObjectURL(f) : null);
           }}
@@ -384,7 +361,6 @@ export function IssueEditForm({ issue }: Props) {
             className="object-cover border border-black/10"
           />
         )}
-        {errors._cover && <p className="type-caption text-red-600">{errors._cover}</p>}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../../../i18n/navigation";
 import { useAuth } from "../../providers/AuthProvider";
+import { useDialog } from "../../providers/DialogProvider";
 import { useMembership } from "../../../../lib/useMembership";
 import { PaneTitle, Message, DangerButton } from "./shared";
 
@@ -14,6 +15,7 @@ const LINK_BUTTON_CLASS =
 
 export function BillingPane({ t }: { t: (key: string) => string }) {
   const tMembership = useTranslations("membership");
+  const { showError } = useDialog();
   const { user, session } = useAuth();
   const { membership, membershipLoading, hasActiveMembership, cancelMembership } = useMembership(user, session);
 
@@ -31,7 +33,7 @@ export function BillingPane({ t }: { t: (key: string) => string }) {
     setCancelLoading(false);
 
     if (!ok) {
-      setCancelMsg({ text: error ?? t("errorGeneric"), ok: false });
+      showError(error ?? t("errorGeneric"));
       return;
     }
 

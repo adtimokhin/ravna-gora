@@ -1,4 +1,9 @@
 {
+  "common": {
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "errorTitle": "Something went wrong"
+  },
   "nav": {
     "aboutUs": "About Us",
     "events": "Events",
@@ -20,6 +25,7 @@
       "aboutUs": "About Us",
       "events": "Events",
       "newspaperCatalog": "Newspaper Catalog",
+      "membership": "Membership",
       "home": "Home"
     },
     "historyLinks": {
@@ -32,16 +38,23 @@
   },
   "footer": {
     "pages": "Pages",
+    "explore": "Explore",
+    "support": "Support",
+    "account": "Account",
     "contactInfo": "Contact Information",
     "chapter": "USA CHAPTER",
     "orgName": "The Movement of Serbian Chetniks Ravne Gore",
+    "rights": "All rights reserved.",
     "links": {
+      "home": "Home",
       "aboutUs": "About Us",
       "events": "Events",
       "newspaperCatalog": "Newspaper Catalog",
       "history": "History",
       "membership": "Membership",
-      "login": "Login"
+      "donate": "Donate",
+      "login": "Log In",
+      "createAccount": "Create Account"
     }
   },
   "home": {
@@ -228,7 +241,7 @@
     "title": "Membership",
     "description": "Support the Movement and stay connected to our community.",
     "imageAlt": "Membership",
-    "supporting": "Supporting Member",
+    "supporting": "Newspaper Subscription",
     "supportingDesc": "Includes a subscription to the newspaper Serbia, with a choice of digital access, printed edition, or both.",
     "supportingFeatures": [
       "Subscription to the newspaper Serbia",
@@ -258,6 +271,10 @@
     "chooseAmountLabel": "Choose an amount",
     "donateInsteadCta": "Just want to donate instead? →",
     "donationLineLabel": "One-time donation",
+    "donationDescription": "Make a one-time contribution to support the Movement — preserving the Ravna Gora ideals and the legacy of those who fought for the Serbian people.",
+    "donationSummary": "You're donating {amount}.",
+    "donationSecureNote": "Payments are processed securely by Stripe. You'll be redirected to complete your donation.",
+    "donationSignInPrompt": "Please sign in to make a donation.",
     "signInRequired": "Sign In Required",
     "signInToContinue": "Please sign in to complete your membership.",
     "signInCta": "Sign In →",
@@ -309,6 +326,8 @@
     "zoomOut": "−",
     "zoomIn": "+",
     "loginRequired": "You must be logged in to read this issue.",
-    "loginLink": "Log in"
+    "loginLink": "Log in",
+    "membershipRequired": "An active membership is required to read the newspaper.",
+    "membershipLink": "View membership plans"
   }
 }

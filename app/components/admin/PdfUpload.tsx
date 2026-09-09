@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 
 interface Props {
   slug: string;
@@ -12,15 +13,14 @@ const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787"
 
 export function PdfUpload({ slug, pdfObjectKey }: Props) {
   const { session } = useAuth();
+  const { showError } = useDialog();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload() {
     if (!file || !session) return;
-    setError(null);
     setUploading(true);
 
     try {
@@ -35,13 +35,13 @@ export function PdfUpload({ slug, pdfObjectKey }: Props) {
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        setError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
+        showError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
         return;
       }
 
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      showError(err instanceof Error ? err.message : "Network error");
     } finally {
       setUploading(false);
     }
@@ -57,7 +57,7 @@ export function PdfUpload({ slug, pdfObjectKey }: Props) {
 
   if (!session) {
     return (
-      <p className="type-caption text-red-600">
+      <p className="type-caption text-gray-2">
         Not signed in — cannot upload.
       </p>
     );
@@ -70,10 +70,7 @@ export function PdfUpload({ slug, pdfObjectKey }: Props) {
         type="file"
         accept=".pdf,application/pdf"
         className="hidden"
-        onChange={(e) => {
-          setError(null);
-          setFile(e.target.files?.[0] ?? null);
-        }}
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
       />
       <div className="flex items-center gap-3 flex-wrap">
         <button
@@ -97,7 +94,6 @@ export function PdfUpload({ slug, pdfObjectKey }: Props) {
       <p className="type-caption text-gray-3">
         Will be stored in R2 at key <code>{pdfObjectKey}</code>
       </p>
-      {error && <p className="type-caption text-red-600">{error}</p>}
     </div>
   );
 }

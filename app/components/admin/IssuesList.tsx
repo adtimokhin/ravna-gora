@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Link } from "../../../i18n/navigation";
 import { supabase } from "../../../lib/supabase";
+import { useDialog } from "../providers/DialogProvider";
 import type { Issue } from "../../../lib/types";
 import { YearRangeSlider } from "./YearRangeSlider";
 import {
@@ -115,10 +116,14 @@ const GRID = "grid grid-cols-[64px_120px_1fr_260px] gap-4 px-4 items-center";
 const MIN_YEAR = 1950;
 
 export function IssuesList() {
+  const { showError } = useDialog();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const retryLoad = useCallback(() => setReloadKey((k) => k + 1), []);
 
   const [sortKey, setSortKey] = useState<SortKey>("issue_number");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -129,22 +134,25 @@ export function IssuesList() {
 
   const fetchIssues = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setLoadFailed(false);
     const { data, error: err } = await supabase
       .from("issues")
       .select("*")
       .order("issue_number", { ascending: false });
     setLoading(false);
     if (err) {
-      setError(err.message);
+      setLoadFailed(true);
+      showError(err.message, {
+        actions: [{ label: "Retry", onClick: retryLoad }],
+      });
       return;
     }
     setIssues((data as Issue[]) ?? []);
-  }, []);
+  }, [showError, retryLoad]);
 
   useEffect(() => {
     fetchIssues();
-  }, [fetchIssues]);
+  }, [fetchIssues, reloadKey]);
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
@@ -163,7 +171,7 @@ export function IssuesList() {
       .eq("id", issue.id);
     setBusyId(null);
     if (err) {
-      setError(err.message);
+      showError(err.message);
       return;
     }
     setIssues((prev) =>
@@ -202,7 +210,7 @@ export function IssuesList() {
     if (err) {
       const isPermission =
         err.code === "42501" || err.message.toLowerCase().includes("permission");
-      setError(
+      showError(
         isPermission
           ? "Permission denied — your account does not have delete access in the database (RLS rejected the DELETE)."
           : err.message
@@ -232,17 +240,17 @@ export function IssuesList() {
     return <p className="type-body text-gray-3">Loading issues…</p>;
   }
 
-  if (error && issues.length === 0) {
+  if (loadFailed && issues.length === 0) {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="type-caption text-red-600">{error}</p>
+      <p className="type-body text-gray-3">
+        Couldn&apos;t load issues.{" "}
         <button
-          onClick={fetchIssues}
-          className="type-caption text-blue-2 hover:underline self-start"
+          onClick={retryLoad}
+          className="cursor-pointer text-blue-2 hover:underline"
         >
           Retry
         </button>
-      </div>
+      </p>
     );
   }
 
@@ -262,15 +270,6 @@ export function IssuesList() {
           setYearTo(t);
         }}
       />
-
-      {error && (
-        <div className="flex items-center gap-3">
-          <p className="type-caption text-red-600">{error}</p>
-          <button onClick={fetchIssues} className="type-caption text-blue-2 hover:underline">
-            Retry
-          </button>
-        </div>
-      )}
 
       <div className="border border-black/10 overflow-x-auto">
         <div className="min-w-160">

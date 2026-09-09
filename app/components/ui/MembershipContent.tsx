@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 import { useMembership } from "../../../lib/useMembership";
 import { getPriceId } from "../../../lib/stripePrices";
 import { workerFetch } from "../../../lib/workerApi";
@@ -34,6 +35,7 @@ export function MembershipContent() {
   const t = useTranslations("membership");
   const router = useRouter();
   const { user, session } = useAuth();
+  const { showError } = useDialog();
 
   // Only the Supporting card needs a sub-selection — which edition to
   // subscribe to. null means "no explicit choice yet," so it falls back to
@@ -48,7 +50,6 @@ export function MembershipContent() {
   const [cancelLoading, setCancelLoading] = useState(false);
 
   const [checkoutLoading, setCheckoutLoading] = useState<Plan | null>(null);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const selectedEdition: Edition =
     edition ?? (hasActiveMembership && membership!.plan === "supporting" && membership!.edition
@@ -63,15 +64,14 @@ export function MembershipContent() {
 
   const isCurrentSupporting =
     hasActiveMembership && membership!.plan === "supporting" && (membership!.edition ?? null) === selectedEdition;
-  const isCurrentFull = hasActiveMembership && membership!.plan === "full";
+  // Full Member card is hidden for now — see commented-out block below.
+  // const isCurrentFull = hasActiveMembership && membership!.plan === "full";
 
   // Start a hosted Stripe Checkout for `plan`. The Worker owns customer /
   // subscription creation and returns a hosted URL to redirect to. It refuses
   // (409) if the caller is already an active member — switching plans means
   // cancelling first and subscribing again after the period ends.
   async function subscribe(plan: Plan) {
-    setCheckoutError(null);
-
     if (!user || !session) {
       router.push("/login");
       return;
@@ -79,7 +79,7 @@ export function MembershipContent() {
 
     const priceId = getPriceId(plan, plan === "supporting" ? selectedEdition : undefined);
     if (!priceId) {
-      setCheckoutError(t("checkoutError"));
+      showError(t("checkoutError"));
       return;
     }
 
@@ -93,7 +93,7 @@ export function MembershipContent() {
       if (!url) throw new Error(t("checkoutError"));
       window.location.href = url;
     } catch (err) {
-      setCheckoutError(err instanceof Error ? err.message : t("checkoutError"));
+      showError(err instanceof Error ? err.message : t("checkoutError"));
       setCheckoutLoading(null);
     }
   }
@@ -120,7 +120,7 @@ export function MembershipContent() {
     setCancelLoading(false);
 
     if (!ok) {
-      setCancelMsg({ text: error ?? t("checkoutError"), ok: false });
+      showError(error ?? t("checkoutError"));
       return;
     }
 
@@ -132,7 +132,7 @@ export function MembershipContent() {
     : null;
 
   const supportingFeatures = t.raw("supportingFeatures") as string[];
-  const fullFeatures = t.raw("fullFeatures") as string[];
+  // const fullFeatures = t.raw("fullFeatures") as string[]; // Full Member card hidden
 
   return (
     <div className="flex flex-col gap-(--space-10) pb-(--space-8)">
@@ -168,10 +168,9 @@ export function MembershipContent() {
         </div>
       )}
 
-      {checkoutError && <Message text={checkoutError} ok={false} />}
-
       {/* ── Plan cards ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch">
+      {/* Full Member card is hidden for now, so this is a single-column layout. */}
+      <div className="grid grid-cols-1 gap-5 items-stretch max-w-155">
 
         {/* Supporting Member */}
         <div className="flex flex-col gap-6 p-8 border-2 border-black/15">
@@ -217,7 +216,9 @@ export function MembershipContent() {
           </button>
         </div>
 
-        {/* Full Member — contrast card */}
+        {/* Full Member — contrast card. Hidden for now: not offered to visitors.
+            Restore this block (and `isCurrentFull` / `fullFeatures` above, and
+            the `xl:grid-cols-2` on the wrapper) to bring it back.
         <div className="flex flex-col gap-6 p-8 bg-blue-2">
           <div className="flex flex-col gap-1">
             <p className="type-label text-white/70">{t("popularBadge")}</p>
@@ -249,6 +250,7 @@ export function MembershipContent() {
             {checkoutLoading === "full" ? t("processing") : subscribeLabel(isCurrentFull)}
           </button>
         </div>
+        */}
       </div>
 
       {hasActiveMembership && (
