@@ -35,15 +35,17 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to load roles." }, { status: 500 });
   }
 
+  // `profiles_role_check` only permits 'member' or 'admin' — a user with no
+  // profiles row yet is treated as a plain member.
   const roleById = new Map<string, string>(
-    (profiles ?? []).map((p: { id: string; role: string | null }) => [p.id, p.role ?? "user"])
+    (profiles ?? []).map((p: { id: string; role: string | null }) => [p.id, p.role ?? "member"])
   );
 
   const users = userList.users.map((u) => ({
     id: u.id,
     email: u.email ?? null,
     fullName: (u.user_metadata?.full_name as string | undefined) ?? null,
-    role: roleById.get(u.id) ?? "user",
+    role: roleById.get(u.id) ?? "member",
     banned: !!u.banned_until && new Date(u.banned_until) > new Date(),
     createdAt: u.created_at,
     lastSignInAt: u.last_sign_in_at ?? null,
