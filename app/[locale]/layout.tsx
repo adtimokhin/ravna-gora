@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "../../i18n/routing";
 import { AuthProvider } from "../components/providers/AuthProvider";
+import { DialogProvider } from "../components/providers/DialogProvider";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -22,7 +23,9 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   return (
     <NextIntlClientProvider messages={messages}>
-      <AuthProvider>{children}</AuthProvider>
+      <DialogProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </DialogProvider>
     </NextIntlClientProvider>
   );
 }

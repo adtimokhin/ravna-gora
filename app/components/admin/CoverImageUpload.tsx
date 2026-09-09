@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 
 interface Props {
   slug: string;
@@ -12,23 +13,21 @@ const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787"
 
 export function CoverImageUpload({ slug }: Props) {
   const { session } = useAuth();
+  const { showError } = useDialog();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [publicUrl, setPublicUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
-    setError(null);
     setFile(f);
     if (f) setPreview(URL.createObjectURL(f));
   }
 
   async function handleUpload() {
     if (!file || !session) return;
-    setError(null);
     setUploading(true);
 
     try {
@@ -43,14 +42,14 @@ export function CoverImageUpload({ slug }: Props) {
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        setError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
+        showError((json as { error?: string }).error ?? `Upload failed (${res.status})`);
         return;
       }
 
       const json = (await res.json()) as { ok: boolean; url: string };
       setPublicUrl(json.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      showError(err instanceof Error ? err.message : "Network error");
     } finally {
       setUploading(false);
     }
@@ -73,7 +72,7 @@ export function CoverImageUpload({ slug }: Props) {
 
   if (!session) {
     return (
-      <p className="type-caption text-red-600">
+      <p className="type-caption text-gray-2">
         Not signed in — cannot upload.
       </p>
     );
@@ -120,7 +119,6 @@ export function CoverImageUpload({ slug }: Props) {
       <p className="type-caption text-gray-3">
         Stored in R2 at <code>covers/{slug}.&lt;ext&gt;</code> and linked to this issue.
       </p>
-      {error && <p className="type-caption text-red-600">{error}</p>}
     </div>
   );
 }

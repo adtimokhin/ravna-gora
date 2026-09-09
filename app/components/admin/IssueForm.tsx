@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Link } from "../../../i18n/navigation";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 import type { Issue } from "../../../lib/types";
 
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787";
@@ -64,6 +65,7 @@ const STEP_LABELS: Record<Step, string> = {
 
 export function IssueForm() {
   const { session } = useAuth();
+  const { showError } = useDialog();
 
   const [issueNumber, setIssueNumber] = useState<number | "">("");
   const [issueDate, setIssueDate] = useState(todayIso());
@@ -140,11 +142,11 @@ export function IssueForm() {
       const isPermission =
         dbError.code === "42501" ||
         dbError.message.toLowerCase().includes("permission");
-      setErrors({
-        _submit: isPermission
+      showError(
+        isPermission
           ? "Permission denied — your account does not have admin access in the database (RLS rejected the INSERT)."
-          : `Database error: ${dbError.message}`,
-      });
+          : `Database error: ${dbError.message}`
+      );
       return;
     }
 
@@ -165,16 +167,10 @@ export function IssueForm() {
         if (res.ok) setPdfUploaded(true);
         else {
           const json = await res.json().catch(() => ({}));
-          setErrors((prev) => ({
-            ...prev,
-            _pdf: (json as { error?: string }).error ?? `PDF upload failed (${res.status})`,
-          }));
+          showError((json as { error?: string }).error ?? `PDF upload failed (${res.status})`);
         }
       } catch (err) {
-        setErrors((prev) => ({
-          ...prev,
-          _pdf: err instanceof Error ? err.message : "Network error uploading PDF",
-        }));
+        showError(err instanceof Error ? err.message : "Network error uploading PDF");
       }
     }
 
@@ -194,16 +190,10 @@ export function IssueForm() {
           setCoverUrl(json.url);
         } else {
           const json = await res.json().catch(() => ({}));
-          setErrors((prev) => ({
-            ...prev,
-            _cover: (json as { error?: string }).error ?? `Cover upload failed (${res.status})`,
-          }));
+          showError((json as { error?: string }).error ?? `Cover upload failed (${res.status})`);
         }
       } catch (err) {
-        setErrors((prev) => ({
-          ...prev,
-          _cover: err instanceof Error ? err.message : "Network error uploading cover",
-        }));
+        showError(err instanceof Error ? err.message : "Network error uploading cover");
       }
     }
 
@@ -242,8 +232,8 @@ export function IssueForm() {
                 ["Date", created.issue_date],
                 ["Slug", created.slug],
                 ["PDF key", created.pdf_object_key],
-                ["PDF uploaded", pdfFile ? (pdfUploaded ? "Yes" : "Failed — see error below") : "Skipped"],
-                ["Cover uploaded", coverFile ? (coverUrl ? "Yes" : "Failed — see error below") : "Skipped"],
+                ["PDF uploaded", pdfFile ? (pdfUploaded ? "Yes" : "Failed") : "Skipped"],
+                ["Cover uploaded", coverFile ? (coverUrl ? "Yes" : "Failed") : "Skipped"],
                 ["Status", created.published ? "Published" : "Draft"],
               ] as [string, string][]
             ).map(([label, val]) => (
@@ -264,17 +254,6 @@ export function IssueForm() {
             />
           )}
         </div>
-
-        {(errors._pdf || errors._cover) && (
-          <div className="border border-red-300 bg-red-50 px-4 py-3 flex flex-col gap-1">
-            {errors._pdf && (
-              <p className="type-caption text-red-700">PDF: {errors._pdf}</p>
-            )}
-            {errors._cover && (
-              <p className="type-caption text-red-700">Cover: {errors._cover}</p>
-            )}
-          </div>
-        )}
 
         <div className="flex gap-3 flex-wrap">
           <button
@@ -480,12 +459,6 @@ export function IssueForm() {
             </p>
           </div>
         </div>
-
-        {errors._submit && (
-          <div className="border border-red-300 bg-red-50 px-4 py-3">
-            <p className="type-caption text-red-700">{errors._submit}</p>
-          </div>
-        )}
 
         <div className="flex items-center gap-4">
           <button

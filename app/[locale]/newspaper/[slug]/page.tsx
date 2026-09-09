@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "../../../../i18n/navigation";
 import { useAuth } from "../../../components/providers/AuthProvider";
+import { useMembership } from "../../../../lib/useMembership";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
 const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL ?? "http://localhost:8787";
@@ -13,7 +14,8 @@ const MAX_SCALE = 5;
 
 export default function NewspaperViewer() {
   const { slug } = useParams<{ slug: string }>();
-  const { session, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
+  const { hasActiveMembership, membershipLoading } = useMembership(user, session);
   const t = useTranslations("newspaper");
 
   const [numPages, setNumPages] = useState(0);
@@ -126,10 +128,10 @@ export default function NewspaperViewer() {
   }, [renderPage, currentPage]);
 
   useEffect(() => {
-    if (authLoading || !session) return;
+    if (authLoading || !session || membershipLoading || !hasActiveMembership) return;
     loadPdf();
     return () => { cancelledRef.current = true; };
-  }, [loadPdf, authLoading, session]);
+  }, [loadPdf, authLoading, session, membershipLoading, hasActiveMembership]);
 
   // Detect current page from scroll
   useEffect(() => {
@@ -219,6 +221,25 @@ export default function NewspaperViewer() {
         <p className="text-[#e5e5e5] text-sm">{t("loginRequired")}</p>
         <Link href="/login" className="text-sm text-[#6b9fff] hover:underline">
           {t("loginLink")}
+        </Link>
+      </div>
+    );
+  }
+
+  if (membershipLoading) {
+    return (
+      <div className="flex h-screen w-screen bg-[#1a1a1a] items-center justify-center">
+        <p className="text-[#888] text-sm">{t("loading")}</p>
+      </div>
+    );
+  }
+
+  if (!hasActiveMembership) {
+    return (
+      <div className="flex h-screen w-screen bg-[#1a1a1a] flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-[#e5e5e5] text-sm max-w-sm">{t("membershipRequired")}</p>
+        <Link href="/membership" className="text-sm text-[#6b9fff] hover:underline">
+          {t("membershipLink")}
         </Link>
       </div>
     );

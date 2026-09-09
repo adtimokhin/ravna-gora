@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "../../../i18n/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -18,6 +18,7 @@ function GoogleIcon() {
 
 export function SignUpForm() {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -25,6 +26,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verifyMessage, setVerifyMessage] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
@@ -73,10 +75,20 @@ export function SignUpForm() {
   }
 
   async function handleGoogleSignIn() {
-    await supabase.auth.signInWithOAuth({
+    setError(null);
+    setGoogleLoading(true);
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/account` },
+      options: { redirectTo: `${window.location.origin}/${locale}/account` },
     });
+
+    // On success the browser navigates away to Google, so we only land here
+    // when the redirect could not be started (e.g. provider disabled).
+    if (error) {
+      setError(t("errorGeneric"));
+      setGoogleLoading(false);
+    }
   }
 
   if (verifyMessage) {
@@ -99,10 +111,11 @@ export function SignUpForm() {
 
       <button
         onClick={handleGoogleSignIn}
-        className="cursor-pointer flex items-center justify-center gap-3 w-full border border-black/20 bg-white px-4 py-3 type-ui-medium text-black hover:bg-black/5 transition-colors"
+        disabled={googleLoading}
+        className="cursor-pointer flex items-center justify-center gap-3 w-full border border-black/20 bg-white px-4 py-3 type-ui-medium text-black hover:bg-black/5 transition-colors disabled:opacity-60"
       >
         <GoogleIcon />
-        {t("continueWithGoogle")}
+        {googleLoading ? "…" : t("continueWithGoogle")}
       </button>
 
       <div className="flex items-center gap-4">

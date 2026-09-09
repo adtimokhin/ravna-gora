@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import NextLink from "next/link";
 import { Link, useRouter, usePathname } from "../../../i18n/navigation";
 import { useAuth } from "../providers/AuthProvider";
+import { HISTORY_LINKS } from "./navLinks";
 
 type Locale = "en" | "sr-cyrl" | "sr-latn";
 
@@ -119,31 +120,8 @@ export function Navbar() {
       labelKey: "exploreLinks.newspaperCatalog" as const,
       href: "/newspaper-catalog",
     },
+    { labelKey: "exploreLinks.membership" as const, href: "/membership" },
     { labelKey: "exploreLinks.home" as const, href: "/" },
-  ];
-
-  // FIXME: keep in sync with Footer.tsx HISTORY_LINKS — slug for Part 1 not yet confirmed
-  const HISTORY_LINKS = [
-    {
-      labelKey: "historyLinks.movementInSerbia" as const,
-      href: "/history/serbian-national-movement-in-serbia",
-    },
-    {
-      labelKey: "historyLinks.testimonies" as const,
-      href: "/history/foreign-testimonies-about-chetniks-and-general-mihalovic",
-    },
-    {
-      labelKey: "historyLinks.movementOutsideSerbia" as const,
-      href: "/history/serbian-national-movement-outside-of-serbia",
-    },
-    {
-      labelKey: "historyLinks.symbolsAndTraditions" as const,
-      href: "/history/symbols-and-traditions",
-    },
-    {
-      labelKey: "historyLinks.celebrations" as const,
-      href: "/history/celebrations-and-commemorations",
-    },
   ];
 
   return (
