@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
+import { GiftMembershipModal } from "./GiftMembershipModal";
 import type { AdminUser } from "../../../lib/types";
 
 async function authorizedFetch(input: string, init?: RequestInit) {
@@ -24,6 +25,7 @@ export function UsersTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [giftUser, setGiftUser] = useState<AdminUser | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -92,6 +94,7 @@ export function UsersTable() {
   }
 
   return (
+    <>
     <div className="flex flex-col divide-y divide-black/10 border border-black/10">
       {users.map((u) => {
         const busy = busyId === u.id;
@@ -128,6 +131,14 @@ export function UsersTable() {
               <option value="admin">Admin</option>
             </select>
 
+            {/* Gift membership */}
+            <button
+              onClick={() => setGiftUser(u)}
+              className="cursor-pointer border border-black/20 type-caption text-black px-3 py-1.5 hover:bg-black hover:text-white transition-colors shrink-0"
+            >
+              Gift membership
+            </button>
+
             {/* Disable / enable */}
             <button
               onClick={() => updateUser(u.id, { banned: !u.banned })}
@@ -140,5 +151,10 @@ export function UsersTable() {
         );
       })}
     </div>
+
+    {giftUser && (
+      <GiftMembershipModal user={giftUser} onClose={() => setGiftUser(null)} />
+    )}
+    </>
   );
 }
