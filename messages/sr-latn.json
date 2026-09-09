@@ -1,4 +1,9 @@
 {
+  "common": {
+    "close": "Zatvori",
+    "dismiss": "U redu",
+    "errorTitle": "Došlo je do greške"
+  },
   "nav": {
     "aboutUs": "O nama",
     "events": "Događaji",
@@ -20,6 +25,7 @@
       "aboutUs": "O nama",
       "events": "Događaji",
       "newspaperCatalog": "Katalog novina",
+      "membership": "Članstvo",
       "home": "Početna"
     },
     "historyLinks": {
@@ -32,16 +38,23 @@
   },
   "footer": {
     "pages": "Stranice",
+    "explore": "Istražite",
+    "support": "Podržite",
+    "account": "Nalog",
     "contactInfo": "Kontakt informacije",
     "chapter": "USA CHAPTER",
     "orgName": "Pokret srpskih četnika Ravne Gore",
+    "rights": "Sva prava zadržana.",
     "links": {
+      "home": "Početna",
       "aboutUs": "O nama",
       "events": "Događaji",
       "newspaperCatalog": "Katalog novina",
       "history": "Istorija",
       "membership": "Članstvo",
-      "login": "Prijava"
+      "donate": "Donirajte",
+      "login": "Prijava",
+      "createAccount": "Registracija"
     }
   },
   "home": {
@@ -228,7 +241,7 @@
     "title": "Članstvo",
     "description": "Podržite Pokret i ostanite u vezi sa našom zajednicom.",
     "imageAlt": "Članstvo",
-    "supporting": "Pridružni član",
+    "supporting": "Pretplata na novine",
     "supportingDesc": "Uključuje pretplatu na novine Srbija, sa izborom digitalnog pristupa, štampanog izdanja ili oba.",
     "supportingFeatures": [
       "Pretplata na novine Srbija",
@@ -258,6 +271,10 @@
     "chooseAmountLabel": "Izaberite iznos",
     "donateInsteadCta": "Želite samo da donirate? →",
     "donationLineLabel": "Jednokratni prilog",
+    "donationDescription": "Dajte jednokratni prilog kao podršku Pokretu — čuvanju ravnogorskih ideala i nasleđa onih koji su se borili za srpski narod.",
+    "donationSummary": "Donirate {amount}.",
+    "donationSecureNote": "Plaćanja bezbedno obrađuje Stripe. Bićete preusmereni da završite donaciju.",
+    "donationSignInPrompt": "Prijavite se da biste donirali.",
     "signInRequired": "Potrebna je prijava",
     "signInToContinue": "Prijavite se da biste dovršili članstvo.",
     "signInCta": "Prijavite se →",
@@ -309,6 +326,8 @@
     "zoomOut": "−",
     "zoomIn": "+",
     "loginRequired": "Morate biti prijavljeni da biste čitali ovo izdanje.",
-    "loginLink": "Prijavite se"
+    "loginLink": "Prijavite se",
+    "membershipRequired": "Za čitanje novina potrebno je aktivno članstvo.",
+    "membershipLink": "Pogledajte planove članstva"
   }
 }

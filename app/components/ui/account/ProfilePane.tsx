@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../../../lib/supabase";
+import { useDialog } from "../../providers/DialogProvider";
 import { Field, Message, PaneTitle, PrimaryButton, TextInput } from "./shared";
 
 function initials(name: string | undefined, email: string | undefined): string {
@@ -21,6 +22,7 @@ export function ProfilePane({
   user: User;
   t: (key: string) => string;
 }) {
+  const { showError } = useDialog();
   const [name, setName] = useState(user.user_metadata?.full_name ?? "");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -43,7 +45,7 @@ export function ProfilePane({
 
     if (error) {
       console.error("[account:profile] updateUser failed", error);
-      setMsg({ text: t("errorGeneric"), ok: false });
+      showError(t("errorGeneric"));
       return;
     }
     console.log("[account:profile] updateUser succeeded");

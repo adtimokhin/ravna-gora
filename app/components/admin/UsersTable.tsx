@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../providers/AuthProvider";
+import { useDialog } from "../providers/DialogProvider";
 import { GiftMembershipModal } from "./GiftMembershipModal";
 import type { AdminUser } from "../../../lib/types";
 
@@ -21,15 +22,19 @@ async function authorizedFetch(input: string, init?: RequestInit) {
 
 export function UsersTable() {
   const { user: currentUser } = useAuth();
+  const { showError } = useDialog();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [giftUser, setGiftUser] = useState<AdminUser | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const retryLoad = useCallback(() => setReloadKey((k) => k + 1), []);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setLoadFailed(false);
     console.log("[admin:users] fetching user list");
 
     const res = await authorizedFetch("/api/admin/users");
@@ -38,15 +43,18 @@ export function UsersTable() {
 
     setLoading(false);
     if (!res.ok) {
-      setError(body?.error ?? "Failed to load users.");
+      setLoadFailed(true);
+      showError(body?.error ?? "Failed to load users.", {
+        actions: [{ label: "Retry", onClick: retryLoad }],
+      });
       return;
     }
     setUsers(body.users ?? []);
-  }, []);
+  }, [showError, retryLoad]);
 
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+  }, [fetchUsers, reloadKey]);
 
   async function updateUser(id: string, patch: { role?: string; banned?: boolean }) {
     setBusyId(id);
@@ -62,7 +70,7 @@ export function UsersTable() {
 
     setBusyId(null);
     if (!res.ok) {
-      setError(body?.error ?? "Failed to update user.");
+      showError(body?.error ?? "Failed to update user.");
       return;
     }
 
@@ -75,17 +83,17 @@ export function UsersTable() {
     return <p className="type-body text-gray-3">Loading users…</p>;
   }
 
-  if (error) {
+  if (loadFailed) {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="type-caption text-red-600">{error}</p>
+      <p className="type-body text-gray-3">
+        Couldn&apos;t load users.{" "}
         <button
-          onClick={fetchUsers}
-          className="type-caption text-blue-2 hover:underline self-start"
+          onClick={retryLoad}
+          className="cursor-pointer text-blue-2 hover:underline"
         >
           Retry
         </button>
-      </div>
+      </p>
     );
   }
 

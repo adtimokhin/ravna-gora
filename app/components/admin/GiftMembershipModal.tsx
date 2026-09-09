@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDialog } from "../providers/DialogProvider";
 import { workerFetch } from "../../../lib/workerApi";
 import { getPriceId } from "../../../lib/stripePrices";
 import type { AdminUser } from "../../../lib/types";
@@ -40,6 +41,7 @@ export function GiftMembershipModal({
   user: AdminUser;
   onClose: () => void;
 }) {
+  const { showError } = useDialog();
   const [plan, setPlan] = useState<MembershipPlan>("supporting");
   const [edition, setEdition] = useState<MembershipEdition>("digital");
   const [expiration, setExpiration] = useState("");
@@ -95,7 +97,7 @@ export function GiftMembershipModal({
       setMsg({ text: `Membership granted (${result.membership_id}).`, ok: true });
       setDone(true);
     } catch (err) {
-      setMsg({ text: err instanceof Error ? err.message : "Failed to grant membership.", ok: false });
+      showError(err instanceof Error ? err.message : "Failed to grant membership.");
     } finally {
       setSubmitting(false);
     }
@@ -157,7 +159,7 @@ export function GiftMembershipModal({
                   onChange={(e) => setPlan(e.target.value as MembershipPlan)}
                   className={FIELD_CLASS}
                 >
-                  <option value="supporting">Supporting</option>
+                  <option value="supporting">Newspaper subscription</option>
                   <option value="full">Full</option>
                 </select>
               </label>
